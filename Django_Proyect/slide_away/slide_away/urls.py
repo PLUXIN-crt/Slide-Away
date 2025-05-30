@@ -21,4 +21,7 @@ from market import views
 urlpatterns = [
     path('admin/', admin.site.urls),
     path('', views.ver_inicio),#(Agregar la pagina principal de la tienda, que es la pagina de inicio del sitio web, donde se muestran los productos disponibles y se pueden realizar compras. Esto se puede hacer utilizando la vista principal de la tienda, que se puede definir en el archivo views.py de la aplicación de la tienda. También se pueden agregar otras vistas para mostrar detalles de productos individuales, categorías de productos, etc.)
+    path('inicio/', views.ver_inicio),  # Página de inicio de la tienda
+    path('uf/', views.leer_uf_actual),  # Página para ver productos
+    path('empleados/', views.ver_empleados),
 ]
