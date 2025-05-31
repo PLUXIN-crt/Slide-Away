@@ -22,13 +22,30 @@
             <div class="collapse navbar-collapse" id="navbarNav">
                 <ul class="navbar-nav me-auto">
                     <li class="nav-item">
-                        <a class="nav-link active" href="#">Inicio</a>
+                        <a class="nav-link active" href="{% url 'menu_principal' %}">Inicio</a>
+                    </li>
+                    <li class="nav-item dropdown">
+                        <a class="nav-link dropdown-toggle" href="#" role="button" data-bs-toggle="dropdown">
+                            Categorías
+                        </a>
+                        <ul class="dropdown-menu">
+                            {% for categoria in categorias %}
+                            <li><a class="dropdown-item" href="#">{{ categoria.nombre }}</a></li>
+                            {% endfor %}
+                        </ul>
+                    </li>
+                    <li class="nav-item dropdown">
+                        <a class="nav-link dropdown-toggle" href="#" role="button" data-bs-toggle="dropdown">
+                            Marcas
+                        </a>
+                        <ul class="dropdown-menu">
+                            {% for marca in marcas %}
+                            <li><a class="dropdown-item" href="#">{{ marca.nombre }}</a></li>
+                            {% endfor %}
+                        </ul>
                     </li>
                     <li class="nav-item">
-                        <a class="nav-link" href="#">Productos</a>
-                    </li>
-                    <li class="nav-item">
-                        <a class="nav-link" href="#">Ofertas</a>
+                        <a class="nav-link" href="{% url 'empleados' %}">Empleados</a>
                     </li>
                     <li class="nav-item">
                         <a class="nav-link" href="#">Contacto</a>
@@ -37,13 +54,12 @@
                 
                 <!-- Botón de iniciar sesión -->
                 <div class="d-flex">
-                    <a class="btn btn-outline-light me-2" href="/login" role="button">
+                    <a class="btn btn-outline-light me-2" href="{% url 'login' %}" role="button">
                         <i class="fas fa-user me-1"></i>Iniciar Sesión
                     </a>
-                    <button class="btn btn-warning" type="button" >
+                    <button class="btn btn-warning" type="button">
                         <i class="fas fa-shopping-cart me-1"></i>Carrito
                     </button>
-                </div>
                 </div>
             </div>
         </div>
@@ -54,127 +70,55 @@
         <div class="container text-center">
             <h1 class="display-4 fw-bold">Las Mejores Herramientas</h1>
             <p class="lead">Encuentra todo lo que necesitas para tus proyectos</p>
-            <button class="btn btn-warning btn-lg">Ver Catálogo</button>
+            <a href="#productos" class="btn btn-warning btn-lg">Ver Catálogo</a>
         </div>
     </div>
 
-    <!-- Productos Destacado -->
-    <div class="container my-5">
+    <!-- Productos Destacados -->
+    <div class="container my-5" id="productos">
         <h2 class="text-center mb-5">Productos Destacados</h2>
         <div class="row g-4">
-            <!-- Producto 1 -->
+            {% for producto in productos %}
             <div class="col-md-6 col-lg-4">
                 <div class="card h-100 shadow-sm">
-                    <img src="https://via.placeholder.com/300x200/007bff/ffffff?text=Taladro" class="card-img-top" alt="Taladro">
+                    <img src="https://via.placeholder.com/300x200/007bff/ffffff?text={{ producto.nombre|urlencode }}" 
+                         class="card-img-top" alt="{{ producto.nombre }}">
                     <div class="card-body d-flex flex-column">
-                        <h5 class="card-title">Taladro Profesional</h5>
-                        <p class="card-text">Taladro de alto rendimiento con batería de larga duración. Ideal para trabajos pesados y profesionales.</p>
+                        <h5 class="card-title">{{ producto.nombre }}</h5>
+                        <p class="card-text">{{ producto.descripcion|truncatewords:20 }}</p>
                         <div class="mt-auto">
+                            <div class="mb-2">
+                                <small class="text-muted">
+                                    <strong>Categoría:</strong> {{ producto.categoria }}<br>
+                                    <strong>Marca:</strong> {{ producto.marca }}<br>
+                                    <strong>Proveedor:</strong> {{ producto.proveedor }}<br>
+                                    <strong>Stock:</strong> {{ producto.stock }} unidades
+                                </small>
+                            </div>
                             <div class="d-flex justify-content-between align-items-center">
-                                <span class="h5 text-primary mb-0">$149.99</span>
-                                <button class="btn btn-primary">
-                                    <i class="fas fa-cart-plus me-1"></i>Agregar
-                                </button>
+                                <span class="h5 text-primary mb-0">${{ producto.precio }}</span>
+                                {% if producto.stock > 0 %}
+                                    <button class="btn btn-primary">
+                                        <i class="fas fa-cart-plus me-1"></i>Agregar
+                                    </button>
+                                {% else %}
+                                    <button class="btn btn-secondary" disabled>
+                                        Sin Stock
+                                    </button>
+                                {% endif %}
                             </div>
                         </div>
                     </div>
                 </div>
             </div>
-
-            <!-- Producto 2 -->
-            <div class="col-md-6 col-lg-4">
-                <div class="card h-100 shadow-sm">
-                    <img src="https://via.placeholder.com/300x200/28a745/ffffff?text=Martillo" class="card-img-top" alt="Martillo">
-                    <div class="card-body d-flex flex-column">
-                        <h5 class="card-title">Martillo de Acero</h5>
-                        <p class="card-text">Martillo resistente con mango ergonómico. Perfecto para trabajos de construcción y carpintería.</p>
-                        <div class="mt-auto">
-                            <div class="d-flex justify-content-between align-items-center">
-                                <span class="h5 text-primary mb-0">$24.99</span>
-                                <button class="btn btn-primary">
-                                    <i class="fas fa-cart-plus me-1"></i>Agregar
-                                </button>
-                            </div>
-                        </div>
-                    </div>
+            {% empty %}
+            <div class="col-12">
+                <div class="alert alert-warning text-center">
+                    <h4>No hay productos disponibles</h4>
+                    <p>Por favor, verifica que el servicio Spring Boot esté ejecutándose en el puerto 8089.</p>
                 </div>
             </div>
-
-            <!-- Producto 3 -->
-            <div class="col-md-6 col-lg-4">
-                <div class="card h-100 shadow-sm">
-                    <img src="https://via.placeholder.com/300x200/dc3545/ffffff?text=Sierra" class="card-img-top" alt="Sierra">
-                    <div class="card-body d-flex flex-column">
-                        <h5 class="card-title">Sierra Circular</h5>
-                        <p class="card-text">Sierra circular eléctrica de precisión. Cortes limpios y exactos para maderas y materiales diversos.</p>
-                        <div class="mt-auto">
-                            <div class="d-flex justify-content-between align-items-center">
-                                <span class="h5 text-primary mb-0">$89.99</span>
-                                <button class="btn btn-primary">
-                                    <i class="fas fa-cart-plus me-1"></i>Agregar
-                                </button>
-                            </div>
-                        </div>
-                    </div>
-                </div>
-            </div>
-
-            <!-- Producto 4 -->
-            <div class="col-md-6 col-lg-4">
-                <div class="card h-100 shadow-sm">
-                    <img src="https://via.placeholder.com/300x200/6f42c1/ffffff?text=Destornillador" class="card-img-top" alt="Set Destornilladores">
-                    <div class="card-body d-flex flex-column">
-                        <h5 class="card-title">Set Destornilladores</h5>
-                        <p class="card-text">Kit completo de destornilladores de diferentes tamaños y tipos. Incluye estuche organizador.</p>
-                        <div class="mt-auto">
-                            <div class="d-flex justify-content-between align-items-center">
-                                <span class="h5 text-primary mb-0">$34.99</span>
-                                <button class="btn btn-primary">
-                                    <i class="fas fa-cart-plus me-1"></i>Agregar
-                                </button>
-                            </div>
-                        </div>
-                    </div>
-                </div>
-            </div>
-
-            <!-- Producto 5 -->
-            <div class="col-md-6 col-lg-4">
-                <div class="card h-100 shadow-sm">
-                    <img src="https://via.placeholder.com/300x200/fd7e14/ffffff?text=Nivel" class="card-img-top" alt="Nivel">
-                    <div class="card-body d-flex flex-column">
-                        <h5 class="card-title">Nivel Láser</h5>
-                        <p class="card-text">Nivel láser de alta precisión con múltiples funciones. Ideal para trabajos de albañilería y construcción.</p>
-                        <div class="mt-auto">
-                            <div class="d-flex justify-content-between align-items-center">
-                                <span class="h5 text-primary mb-0">$119.99</span>
-                                <button class="btn btn-primary">
-                                    <i class="fas fa-cart-plus me-1"></i>Agregar
-                                </button>
-                            </div>
-                        </div>
-                    </div>
-                </div>
-            </div>
-
-            <!-- Producto 6 -->
-            <div class="col-md-6 col-lg-4">
-                <div class="card h-100 shadow-sm">
-                    <img src="https://via.placeholder.com/300x200/20c997/ffffff?text=Llave" class="card-img-top" alt="Set Llaves">
-                    <div class="card-body d-flex flex-column">
-                        <h5 class="card-title">Set de Llaves</h5>
-                        <p class="card-text">Juego completo de llaves fijas y ajustables. Fabricadas en acero cromado de alta calidad.</p>
-                        <div class="mt-auto">
-                            <div class="d-flex justify-content-between align-items-center">
-                                <span class="h5 text-primary mb-0">$45.99</span>
-                                <button class="btn btn-primary">
-                                    <i class="fas fa-cart-plus me-1"></i>Agregar
-                                </button>
-                            </div>
-                        </div>
-                    </div>
-                </div>
-            </div>
+            {% endfor %}
         </div>
     </div>
 

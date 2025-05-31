@@ -1,8 +1,10 @@
 from django.shortcuts import render
 from django.http import HttpResponse
 import requests
+
 def ver_login(request):
-    return render(request,"login.html")
+    return render(request, "login.html")
+
 def obtener_uf_actual():
     url="https://www.mindicador.cl/api/uf/15-05-2025"
     try:
@@ -22,36 +24,86 @@ def leer_uf_actual(request):
         }
     return render(request,"api_uf.html", contexto)
 
-def ver_clientes(request):
-    datos = [
-        {'nombre':'Diego Jeldrez', 'correo':'diego@gmail.com'},
-        {'nombre':'Cristobal Fuentes', 'correo':'cristobal@gmail.com'},
-        {'nombre':'Pablo Figueroa', 'correo':'pablo@gmail.com'},
-        {'nombre':'Benjamin Reyes', 'correo':'benjamin@gmail.com'},
-        {'nombre':'Alexander Sepulveda', 'correo':'alexander@gmail.com'},
-        {'nombre':'Agustin Heinz', 'correo':'agustin@gmail.com'},
-        {'nombre':'Mario Garcia', 'correo':'mario@gmail.com'},
-    ]
-    contexto = {
-        'clientes':datos
-    }
-    return render(request,"ver_clientes.html", contexto)
-
-
-
 def obtener_empleados():
     url="http://127.0.0.1:8089/api/empleados/"
     try:
-        response = requests.get(url)
-        data = response.json()
-        return data
+        response = requests.get(url, timeout=5)
+        if response.status_code == 200:
+            data = response.json()
+            print(f"Empleados obtenidos: {len(data)}")
+            return data
+        else:
+            print(f"Error en empleados: {response.status_code}")
+            return []
     except Exception as e:
-        return None
+        print(f"Error al obtener empleados: {e}")
+        return []
+
+def obtener_productos():
+    url="http://127.0.0.1:8089/api/productos/dto"
+    try:
+        response = requests.get(url, timeout=5)
+        if response.status_code == 200:
+            data = response.json()
+            print(f"Productos obtenidos: {len(data)}")
+            return data
+        else:
+            print(f"Error en productos: {response.status_code}")
+            return []
+    except Exception as e:
+        print(f"Error al obtener productos: {e}")
+        return []
+
+def obtener_categorias():
+    url="http://127.0.0.1:8089/api/categorias"
+    try:
+        response = requests.get(url, timeout=5)
+        if response.status_code == 200:
+            data = response.json()
+            print(f"Categorías obtenidas: {len(data)}")
+            return data
+        else:
+            print(f"Error en categorías: {response.status_code}")
+            return []
+    except Exception as e:
+        print(f"Error al obtener categorías: {e}")
+        return []
+
+def obtener_marcas():
+    url="http://127.0.0.1:8089/api/marcas"
+    try:
+        response = requests.get(url, timeout=5)
+        if response.status_code == 200:
+            data = response.json()
+            print(f"Marcas obtenidas: {len(data)}")
+            return data
+        else:
+            print(f"Error en marcas: {response.status_code}")
+            return []
+    except Exception as e:
+        print(f"Error al obtener marcas: {e}")
+        return []
 
 def ver_empleados(request):
     empleados = obtener_empleados()
-    contexto = { "datos":empleados}
-    return render (request, "ver_empleados.html", contexto)
+    contexto = {"datos": empleados}
+    return render(request, "ver_empleados.html", contexto)
 
 def ver_menu_principal(request):
-    return render(request, "menu_principal.html")
+    productos = obtener_productos()
+    categorias = obtener_categorias()
+    marcas = obtener_marcas()
+    
+    # Limitar a 6 productos para la página principal
+    productos_destacados = productos[:6] if productos else []
+    
+    print(f"Productos destacados: {len(productos_destacados)}")
+    print(f"Categorías: {len(categorias)}")
+    print(f"Marcas: {len(marcas)}")
+    
+    contexto = {
+        'productos': productos_destacados,
+        'categorias': categorias,
+        'marcas': marcas
+    }
+    return render(request, "menu_principal.html", contexto)
