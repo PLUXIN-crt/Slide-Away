@@ -1,29 +1,33 @@
-# FerraMas – Sistema de Gestión de Ferretería
+FerraMas – Sistema de Gestión de Ferretería
+FerraMas es un sistema web construido con Django y Spring Boot (MVC) que cubre:
 
-**FerraMas** es un sistema web construido con **Django** y **Spring Boot** (MVC) que cubre:
-- Control de inventario.
-- Gestión de ventas y facturación.
-- Administración de clientes y proveedores.
-- Generación de reportes de stock, ventas y cuentas por cobrar/pagar.
-- Roles de usuario (Administrador, Vendedor, Supervisor).
+Control de inventario.
 
----
+Gestión de ventas y facturación.
 
-## ⚙️ Configuración del Entorno
+Administración de clientes y proveedores.
 
-### 📋 Requisitos Previos
-- **Python 3.8+**
-- **Java 17+**
-- **Maven 3.6+**
-- **Git**
+Generación de reportes de stock, ventas y cuentas por cobrar/pagar.
 
----
+Roles de usuario (Administrador, Vendedor, Supervisor).
 
-### 🐍 Configuración del Entorno Virtual (Python)
+⚙️ Configuración del Entorno
+📋 Requisitos Previos
+Python 3.8+
 
-1. Navega al directorio del proyecto Django:
-   ```bash
-   cd ferraMasDjango
+Java 17+
+
+Maven 3.6+
+
+Git
+
+🐍 Configuración del Entorno Virtual (Python)
+Navega al directorio del proyecto Django:
+
+bash
+Copiar
+Editar
+cd ferraMasDjango
 Crea el entorno virtual:
 
 bash
