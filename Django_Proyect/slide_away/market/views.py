@@ -123,3 +123,6 @@ def ver_catalogo(request):
         'marcas': marcas
     }
     return render(request, "catalogo.html", contexto)
+
+def ver_carrito(request):
+    return render(request, "carrito.html")

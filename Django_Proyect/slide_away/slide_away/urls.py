@@ -11,7 +11,8 @@ urlpatterns = [
     path('empleados/', views.ver_empleados, name='empleados'),
     path('', views.ver_menu_principal, name='menu_principal'),
     path('menu/', views.ver_menu_principal, name='menu_principal'),
-    path('catalogo/', views.ver_catalogo, name='catalogo'),  # Nueva URL
+    path('catalogo/', views.ver_catalogo, name='catalogo'),
+    path('carrito/', views.ver_carrito, name='carrito'),
 ]
 
 # Servir archivos media en desarrollo

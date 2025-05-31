@@ -1,11 +1,18 @@
 document.addEventListener('DOMContentLoaded', function() {
     console.log('Sistema de imágenes de productos cargado');
     
-    const images = document.querySelectorAll('[id^="img-producto-"]');
+    // Buscar imágenes tanto del menú como del catálogo
+    const images = document.querySelectorAll('[id^="img-producto-"], [id^="img-catalogo-"]');
     const extensiones = ['jpg', 'jpeg', 'png', 'webp', 'gif'];
     
     images.forEach(function(img) {
         const nombreProducto = img.getAttribute('data-nombre-producto');
+        
+        if (!nombreProducto) {
+            console.warn('Imagen sin atributo data-nombre-producto:', img);
+            return;
+        }
+        
         console.log('Procesando producto:', nombreProducto);
         
         // Limpiar el nombre del producto (remover espacios, caracteres especiales)
