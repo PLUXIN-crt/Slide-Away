@@ -1,8 +1,8 @@
 from django.shortcuts import render
 from django.http import HttpResponse
 import requests
-def ver_inicio(request):
-    return render(request,"inicio.html")
+def ver_login(request):
+    return render(request,"login.html")
 def obtener_uf_actual():
     url="https://www.mindicador.cl/api/uf/15-05-2025"
     try:
@@ -52,3 +52,6 @@ def ver_empleados(request):
     empleados = obtener_empleados()
     contexto = { "datos":empleados}
     return render (request, "ver_empleados.html", contexto)
+
+def ver_menu_principal(request):
+    return render(request, "menu_principal.html")
