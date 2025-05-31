@@ -107,3 +107,19 @@ def ver_menu_principal(request):
         'marcas': marcas
     }
     return render(request, "menu_principal.html", contexto)
+
+def ver_catalogo(request):
+    productos = obtener_productos()
+    categorias = obtener_categorias()
+    marcas = obtener_marcas()
+    
+    print(f"DEBUG - Catálogo - Productos: {len(productos)}")
+    print(f"DEBUG - Catálogo - Categorías: {len(categorias)}")
+    print(f"DEBUG - Catálogo - Marcas: {len(marcas)}")
+    
+    contexto = {
+        'productos': productos,  # Todos los productos, no limitados
+        'categorias': categorias,
+        'marcas': marcas
+    }
+    return render(request, "catalogo.html", contexto)

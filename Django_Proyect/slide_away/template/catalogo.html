@@ -1,0 +1,277 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Catálogo - ToolShop</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
+</head>
+<body>
+    <!-- Header -->
+    <nav class="navbar navbar-expand-lg navbar-dark bg-dark">
+        <div class="container">
+            <a class="navbar-brand" href="{% url 'menu_principal' %}">
+                <i class="fas fa-tools me-2"></i>ToolShop
+            </a>
+            
+            <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav">
+                <span class="navbar-toggler-icon"></span>
+            </button>
+            
+            <div class="collapse navbar-collapse" id="navbarNav">
+                <ul class="navbar-nav me-auto">
+                    <li class="nav-item">
+                        <a class="nav-link" href="{% url 'menu_principal' %}">Inicio</a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link active" href="{% url 'catalogo' %}">Catálogo</a>
+                    </li>
+                    <li class="nav-item dropdown">
+                        <a class="nav-link dropdown-toggle" href="#" role="button" data-bs-toggle="dropdown">
+                            Categorías
+                        </a>
+                        <ul class="dropdown-menu">
+                            {% for categoria in categorias %}
+                            <li><a class="dropdown-item" href="#">{{ categoria.nombre }}</a></li>
+                            {% endfor %}
+                        </ul>
+                    </li>
+                    <li class="nav-item dropdown">
+                        <a class="nav-link dropdown-toggle" href="#" role="button" data-bs-toggle="dropdown">
+                            Marcas
+                        </a>
+                        <ul class="dropdown-menu">
+                            {% for marca in marcas %}
+                            <li><a class="dropdown-item" href="#">{{ marca.nombre }}</a></li>
+                            {% endfor %}
+                        </ul>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link" href="{% url 'empleados' %}">Empleados</a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link" href="#">Contacto</a>
+                    </li>
+                </ul>
+                
+                <!-- Botón de iniciar sesión -->
+                <div class="d-flex">
+                    <a class="btn btn-outline-light me-2" href="{% url 'login' %}" role="button">
+                        <i class="fas fa-user me-1"></i>Iniciar Sesión
+                    </a>
+                    <button class="btn btn-warning" type="button">
+                        <i class="fas fa-shopping-cart me-1"></i>Carrito
+                    </button>
+                </div>
+            </div>
+        </div>
+    </nav>
+
+    <!-- Header del Catálogo -->
+    <div class="bg-primary text-white py-4">
+        <div class="container">
+            <div class="row align-items-center">
+                <div class="col-md-8">
+                    <h1 class="h2 mb-0">
+                        <i class="fas fa-th-large me-2"></i>Catálogo Completo
+                    </h1>
+                    <p class="mb-0 mt-1">Explora toda nuestra gama de herramientas profesionales</p>
+                </div>
+                <div class="col-md-4 text-md-end">
+                    <span class="badge bg-warning text-dark fs-6">
+                        {{ productos|length }} productos disponibles
+                    </span>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Filtros -->
+    <div class="bg-light py-3">
+        <div class="container">
+            <div class="row">
+                <div class="col-md-6">
+                    <div class="input-group">
+                        <span class="input-group-text">
+                            <i class="fas fa-search"></i>
+                        </span>
+                        <input type="text" class="form-control" placeholder="Buscar productos..." id="searchInput">
+                    </div>
+                </div>
+                <div class="col-md-3">
+                    <select class="form-select" id="categoriaFilter">
+                        <option value="">Todas las categorías</option>
+                        {% for categoria in categorias %}
+                        <option value="{{ categoria.nombre }}">{{ categoria.nombre }}</option>
+                        {% endfor %}
+                    </select>
+                </div>
+                <div class="col-md-3">
+                    <select class="form-select" id="marcaFilter">
+                        <option value="">Todas las marcas</option>
+                        {% for marca in marcas %}
+                        <option value="{{ marca.nombre }}">{{ marca.nombre }}</option>
+                        {% endfor %}
+                    </select>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Catálogo de Productos -->
+    <div class="container my-5">
+        <div class="row g-4" id="productosContainer">
+            {% for producto in productos %}
+            <div class="col-lg-3 col-md-4 col-sm-6 producto-item" 
+                 data-categoria="{{ producto.categoria }}" 
+                 data-marca="{{ producto.marca }}" 
+                 data-nombre="{{ producto.nombre|lower }}">
+                <div class="card h-100 shadow-sm">
+                    <!-- Usar imágenes desde Spring Boot -->
+                    <img src="http://localhost:8089/images/{{ producto.imagen }}" 
+                         class="card-img-top" alt="{{ producto.nombre }}" 
+                         style="height: 200px; object-fit: cover;"
+                         onerror="this.src='http://localhost:8089/images/productos/placeholder.jpg'">
+                    
+                    <div class="card-body d-flex flex-column">
+                        <h6 class="card-title">{{ producto.nombre }}</h6>
+                        <p class="card-text small text-muted">{{ producto.descripcion|truncatewords:15 }}</p>
+                        
+                        <div class="mt-auto">
+                            <div class="mb-2">
+                                <div class="row">
+                                    <div class="col-6">
+                                        <small class="text-muted">
+                                            <strong>Categoría:</strong><br>
+                                            <span class="badge bg-secondary">{{ producto.categoria }}</span>
+                                        </small>
+                                    </div>
+                                    <div class="col-6">
+                                        <small class="text-muted">
+                                            <strong>Marca:</strong><br>
+                                            <span class="badge bg-info">{{ producto.marca }}</span>
+                                        </small>
+                                    </div>
+                                </div>
+                                <div class="row mt-2">
+                                    <div class="col-6">
+                                        <small class="text-muted">
+                                            <strong>Proveedor:</strong><br>
+                                            {{ producto.proveedor|truncatechars:15 }}
+                                        </small>
+                                    </div>
+                                    <div class="col-6">
+                                        <small class="text-muted">
+                                            <strong>Stock:</strong><br>
+                                            {% if producto.stock > 0 %}
+                                                <span class="text-success">{{ producto.stock }} unidades</span>
+                                            {% else %}
+                                                <span class="text-danger">Sin stock</span>
+                                            {% endif %}
+                                        </small>
+                                    </div>
+                                </div>
+                            </div>
+                            
+                            <div class="d-flex justify-content-between align-items-center">
+                                <span class="h6 text-primary mb-0">${{ producto.precio }}</span>
+                                {% if producto.stock > 0 %}
+                                    <button class="btn btn-primary btn-sm">
+                                        <i class="fas fa-cart-plus me-1"></i>Agregar
+                                    </button>
+                                {% else %}
+                                    <button class="btn btn-secondary btn-sm" disabled>
+                                        Sin Stock
+                                    </button>
+                                {% endif %}
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            {% empty %}
+            <div class="col-12">
+                <div class="alert alert-warning text-center">
+                    <h4>No hay productos disponibles</h4>
+                    <p>Por favor, verifica que el servicio Spring Boot esté ejecutándose en el puerto 8089.</p>
+                </div>
+            </div>
+            {% endfor %}
+        </div>
+
+        <!-- Mensaje cuando no hay resultados de búsqueda -->
+        <div id="noResultsMessage" class="text-center mt-5" style="display: none;">
+            <div class="alert alert-info">
+                <h5><i class="fas fa-search me-2"></i>No se encontraron productos</h5>
+                <p>Intenta con otros términos de búsqueda o filtros diferentes.</p>
+            </div>
+        </div>
+    </div>
+
+    <!-- Footer -->
+    <footer class="bg-dark text-white py-4 mt-5">
+        <div class="container">
+            <div class="row">
+                <div class="col-md-6">
+                    <h5>ToolShop</h5>
+                    <p class="mb-0">Tu tienda de herramientas de confianza</p>
+                </div>
+                <div class="col-md-6 text-md-end">
+                    <p class="mb-0">© 2025 ToolShop. Todos los derechos reservados.</p>
+                </div>
+            </div>
+        </div>
+    </footer>
+
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+    
+    <!-- Script para filtros -->
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            const searchInput = document.getElementById('searchInput');
+            const categoriaFilter = document.getElementById('categoriaFilter');
+            const marcaFilter = document.getElementById('marcaFilter');
+            const productosContainer = document.getElementById('productosContainer');
+            const noResultsMessage = document.getElementById('noResultsMessage');
+
+            function filterProducts() {
+                const searchTerm = searchInput.value.toLowerCase();
+                const selectedCategoria = categoriaFilter.value;
+                const selectedMarca = marcaFilter.value;
+                const productos = document.querySelectorAll('.producto-item');
+                let visibleCount = 0;
+
+                productos.forEach(producto => {
+                    const nombre = producto.getAttribute('data-nombre');
+                    const categoria = producto.getAttribute('data-categoria');
+                    const marca = producto.getAttribute('data-marca');
+
+                    const matchesSearch = nombre.includes(searchTerm);
+                    const matchesCategoria = !selectedCategoria || categoria === selectedCategoria;
+                    const matchesMarca = !selectedMarca || marca === selectedMarca;
+
+                    if (matchesSearch && matchesCategoria && matchesMarca) {
+                        producto.style.display = 'block';
+                        visibleCount++;
+                    } else {
+                        producto.style.display = 'none';
+                    }
+                });
+
+                // Mostrar mensaje si no hay resultados
+                if (visibleCount === 0) {
+                    noResultsMessage.style.display = 'block';
+                } else {
+                    noResultsMessage.style.display = 'none';
+                }
+            }
+
+            // Event listeners
+            searchInput.addEventListener('input', filterProducts);
+            categoriaFilter.addEventListener('change', filterProducts);
+            marcaFilter.addEventListener('change', filterProducts);
+        });
+    </script>
+</body>
+</html>
