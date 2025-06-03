@@ -1,0 +1,188 @@
+create database rrhh;
+create user "jefe"@"%" identified by "123";
+grant all privileges on rrhh.* to "jefe"@"%";
+flush privileges;
+
+use rrhh;
+
+create table comuna (
+
+   id int primary key,
+
+  nombre varchar(30) not null
+
+);
+
+create table empleado (
+
+rut varchar(15) primary key,
+  nombre varchar(30) not null,
+  telefono varchar(30) not null,
+  correo varchar(30) not null,
+  id_comuna int not null,
+  foreign key (id_comuna) references comuna(id) 
+
+);
+
+
+
+insert into comuna values (1, "Cerrillos");
+
+insert into comuna values (2, "Maipu");
+
+insert into comuna values (3, "Lo Espejo");
+
+insert into comuna values (4, "Talagante");
+
+insert into comuna values (5, "Padre Hurtado");
+
+insert into comuna values (6, "Melipilla");
+
+insert into empleado values ("1","Carlos","123","carlos@gmail.com",1);
+
+insert into empleado values ("2","Juan","365","juan@gmail.com",1);
+
+insert into empleado values ("3","Daniela","652","daniela@gmail.com",1);
+
+insert into empleado values ("4","Luis","333","luis@gmail.com",2);
+
+insert into empleado values ("5","Karina","444","karina@gmail.com",2);
+
+insert into empleado values ("6","Cecilia","667","cecilia@gmail.com",6);
+
+USE rrhh;
+
+-- 0. Si ya existen, eliminar tablas extra (no toca comuna ni empleado)
+DROP TABLE IF EXISTS producto;
+DROP TABLE IF EXISTS categoria;
+DROP TABLE IF EXISTS marca;
+DROP TABLE IF EXISTS proveedor;
+
+-- 1. Proveedores (20 registros)
+CREATE TABLE proveedor (
+  id INT AUTO_INCREMENT PRIMARY KEY,
+  nombre    VARCHAR(100) NOT NULL,
+  telefono  VARCHAR(20),
+  correo    VARCHAR(100),
+  direccion VARCHAR(200)
+);
+
+INSERT INTO proveedor (nombre, telefono, correo, direccion) VALUES
+  ('Construmart',               '+56 2 2345 6781', 'ventas@construmart.cl',             'Av. Providencia 1111, Santiago'),
+  ('Homecenter Sodimac',        '+56 2 2345 6782', 'contacto@sodimac.cl',               'Av. Departamental 2222, Maipú'),
+  ('Ferretería Central',        '+56 2 2345 6783', 'info@ferrecentral.cl',              'Calle Real 333, Cerrillos'),
+  ('Ferretería El Tornillo',    '+56 2 2345 6784', 'ventas@eltornillo.cl',               'Av. Las Condes 4444, Las Condes'),
+  ('FerrePunta',                '+56 2 2345 6785', 'contacto@ferrepunta.cl',             'Av. Beaucheff 5555, Santiago'),
+  ('Distribuciones Chile',      '+56 2 2345 6786', 'ventas@distribucioneschile.cl',     'Av. España 6666, Santiago'),
+  ('Suministros Ferreteros',    '+56 2 2345 6787', 'contacto@suministrosferreteros.cl', 'Av. Libertador 7777, Viña del Mar'),
+  ('Proveedora Industrial',     '+56 2 2345 6788', 'ventas@proveedoraindustrial.cl',     'Av. Matta 8888, Santiago'),
+  ('Mega Ferretería',           '+56 2 2345 6789', 'info@megaferreteria.cl',            'Av. Vespucio 9999, San Miguel'),
+  ('Soluciones en Construcción','+56 2 2320 1001', 'contacto@solucionesconst.cl',       'Av. Grecia 1010, Maipú'),
+  ('Materiales y Herramientas', '+56 2 2320 1002', 'ventas@materialesyherr.cl',          'Av. Manuel Montt 1111, Providencia'),
+  ('FerreGlobal',               '+56 2 2320 1003', 'contacto@ferreglobal.cl',           'Av. Suecia 1212, Ñuñoa'),
+  ('Equipos y Suministros',     '+56 2 2320 1004', 'ventas@equiposy.su.cl',              'Av. Kennedy 1313, Las Condes'),
+  ('Ferretería Sur',            '+56 2 2320 1005', 'contacto@ferresur.cl',               'Av. Vicuña Mackenna 1414, Ñuñoa'),
+  ('Nordic Ferreteros',         '+56 2 2320 1006', 'ventas@nordicferreteros.cl',         'Av. El Sol 1515, Vitacura'),
+  ('Andes Suministros',         '+56 2 2320 1007', 'contacto@andessuministros.cl',       'Av. Apoquindo 1616, Las Condes'),
+  ('FerreCenter',               '+56 2 2320 1008', 'ventas@ferrecenter.cl',              'Av. Colón 1717, Santiago'),
+  ('Proequipos',                '+56 2 2320 1009', 'contacto@proequipos.cl',             'Av. El Carmen 1818, Santiago'),
+  ('Innova Ferreteros',         '+56 2 2320 1010', 'ventas@innovaferr.cl',               'Av. San Diego 1919, Santiago'),
+  ('TopTools',                  '+56 2 2320 1011', 'contacto@toptools.cl',               'Av. Lo Espejo 2020, Lo Espejo');
+
+-- 2. Marcas (20 registros)
+CREATE TABLE marca (
+  id INT AUTO_INCREMENT PRIMARY KEY,
+  nombre VARCHAR(50) NOT NULL
+);
+
+INSERT INTO marca (nombre) VALUES
+  ('Makita'),('Stanley'),('Black+Decker'),('Bosch'),('DeWalt'),
+  ('Ryobi'),('Einhell'),('Milwaukee'),('Festool'),('Dremel'),
+  ('Husqvarna'),('3M'),('Loctite'),('Irwin'),('Truper'),
+  ('Skil'),('Rust-Oleum'),('Sika'),('Minwax'),('GenericPro');
+
+-- 3. Categorías (20 registros)
+CREATE TABLE categoria (
+  id INT AUTO_INCREMENT PRIMARY KEY,
+  nombre VARCHAR(50) NOT NULL
+);
+
+INSERT INTO categoria (nombre) VALUES
+  ('Herramientas manuales'),('Herramientas eléctricas'),('Fontanería'),
+  ('Eléctricos'),('Pinturas y acabados'),('Ferretería general'),
+  ('Adhesivos y sellantes'),('Tornillería'),('Seguridad industrial'),
+  ('Jardinería'),('Cemento y mortero'),('Abrasivos'),('Soldadura'),
+  ('Instrumentos de medición'),('Materiales de construcción'),
+  ('Iluminación'),('Ventilación y climatización'),('Aislamiento'),
+  ('Accesorios eléctricos'),('Ferretería automotriz');
+
+-- 4. Productos (30 registros, >20)
+CREATE TABLE producto (
+  id INT AUTO_INCREMENT PRIMARY KEY,
+  nombre       VARCHAR(100)    NOT NULL,
+  descripcion  VARCHAR(255),
+  categoria_id INT             NOT NULL,
+  marca_id     INT             NOT NULL,
+  proveedor_id INT             NOT NULL,
+  stock        INT             NOT NULL DEFAULT 0,
+  precio       DECIMAL(10,2)   NOT NULL,
+  FOREIGN KEY (categoria_id) REFERENCES categoria(id),
+  FOREIGN KEY (marca_id)     REFERENCES marca(id),
+  FOREIGN KEY (proveedor_id) REFERENCES proveedor(id)
+);
+
+INSERT INTO producto (nombre, descripcion, categoria_id, marca_id, proveedor_id, stock, precio) VALUES
+  -- Herramientas manuales
+  ('Martillo de uña 16 oz','Cabeza de acero forjado, mango fiberglás', 1, 2,  1,  25,  8000.00),
+  ('Destornillador Phillips #2','Mango ergonómico, punta magnética', 1,14,  1,  40,  4500.00),
+  ('Llave de vaso 1/2\" set 10 pzs','Cromo vanadio',               1, 2, 10,  35, 22000.00),
+
+  -- Herramientas eléctricas
+  ('Taladro inalámbrico 18V','Batería Li-Ion, velocidad variable', 2, 6,  2,  15, 65000.00),
+  ('Taladro percutor 650 W','Función martillo, 13 mm',            2, 1,  2,  12, 42000.00),
+  ('Sierra circular 7¼\"','Potencia 1.400 W, disco 184 mm',        2, 4,  2,  10, 85000.00),
+
+  -- Fontanería
+  ('Tubo PVC Ø ½\" x 3 m','Certificado ASTM, presión 10 bar',      3,20,  3, 100,  2400.00),
+  ('Codo PVC 90° Ø ½\"','Unión rápida, alta resistencia',          3,20,  3, 200,   350.00),
+
+  -- Eléctricos
+  ('Cable eléctrico 2x1.5 mm²','RoHS, cobre OFC',                 4,20,  1,  50,  1200.00),
+  ('Regleta eléctrica 6 puertos','Protección contra sobrecarga', 19,20,  9,  75, 15000.00),
+  ('Extensión eléctrica 5 m','Con protector térmico',             19,20, 10,  60, 14500.00),
+
+  -- Pinturas y acabados
+  ('Pintura látex blanca 1 gal','Interior, alto rendimiento',      5,17,  2,  30, 18500.00),
+  ('Thinner para esmalte 1 L','Solvente universal para pinturas', 5,17,  3,  60,  7200.00),
+  ('Rodillo de pintura 9\"','Mango fibra, rodillo de lana',        5,20, 12,  55,  6500.00),
+
+  -- Ferretería general
+  ('Juego de tornillos 3×20 mm 100 u','Acero zincado',            6,15,  1, 150,  2200.00),
+  ('Broca para madera 5 mm','Acero rápido HSS',                   8, 7,  1,  75,  1800.00),
+
+  -- Adhesivos y sellantes
+  ('Pistola de silicona caliente','Incluye barras adhesivas',      7,13, 11,  45,  8500.00),
+  ('Tubo de silicona 300 ml','Sellado resistente a humedad',      7,13, 18, 100,  5500.00),
+
+  -- Tornillería y abrasivos
+  ('Disco de corte 115 mm','Abrasivo para metal',                12,20,  7, 200,  1200.00),
+
+  -- Seguridad industrial
+  ('Candado de seguridad 50 mm','Acero laminado, llave tubular',   9,20,  4,  60,  7500.00),
+  ('Guantes de cuero para obra','Talla L, palma reforzada',        9,20,  4, 120,  5500.00),
+  ('Máscara de soldar automática','Oscurecimiento variable',      13,20,  8,  25, 38000.00),
+
+  -- Jardinería
+  ('Manguera jardín 15 m','PVC reforzado, conexiones metálicas',  10,20,  5,  40, 12500.00),
+
+  -- Cemento y construcción
+  ('Bolsa de cemento 50 kg','Portland, resistencia 42.5',        11,20,  6,  80,  4500.00),
+  ('Ladrillo cerámico 24×11×8 cm','Resistencia alta, cocido',    15,20,  6, 500,   450.00),
+
+  -- Instrumentos de medición
+  ('Cinta métrica 5 m','Acero con recubrimiento ABS',            14, 8,  9,  90,  6000.00),
+  ('Nivel de burbuja 60 cm','Aluminio anodizado',                14, 8,  9,  50,  8000.00),
+
+  -- Ventilación e aislamiento
+  ('Ventilador extracto 150 mm','Silencioso, 220 V',            17,20,  8,  20,  9500.00),
+  ('Panel aislante 1×2 m EPS','Espuma expandida, 20 mm',        18,20, 16,  30, 12000.00);
