@@ -13,9 +13,17 @@ urlpatterns = [
     path('menu/', views.ver_menu_principal, name='menu_principal'),
     path('catalogo/', views.ver_catalogo, name='catalogo'),
     path('carrito/', views.ver_carrito, name='carrito'),
-    # Nuevos endpoints para carrito
+    
+    # URLs para carrito
     path('api/carrito/productos/', views.obtener_productos_carrito, name='api_carrito_productos'),
     path('api/producto/<int:producto_id>/', views.obtener_producto_por_id, name='api_producto_id'),
+    
+    # URLs para pagos con Transbank - VERSIÓN FUNCIONAL
+    path('pago/', views.ver_pago, name='pago'),
+    path('api/pago/iniciar/', views.iniciar_pago, name='iniciar_pago'),
+    path('retorno/', views.retorno_pago, name='retorno_pago'),  # Esta es la URL que faltaba
+    path('pago/confirmar/', views.confirmar_pago, name='confirmar_pago'),
+    path('pago/anulado/', views.pago_anulado, name='pago_anulado'),
 ]
 
 # Servir archivos media en desarrollo

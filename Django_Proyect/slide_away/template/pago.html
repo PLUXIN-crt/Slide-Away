@@ -1,0 +1,349 @@
+<!DOCTYPE html>
+{% load static %}
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Pago - ToolShop</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
+</head>
+<body>
+    <!-- Header -->
+    <nav class="navbar navbar-expand-lg navbar-dark bg-dark">
+        <div class="container">
+            <a class="navbar-brand" href="{% url 'menu_principal' %}">
+                <i class="fas fa-tools me-2"></i>ToolShop
+            </a>
+        </div>
+    </nav>
+
+    <!-- Header del Pago -->
+    <div class="bg-success text-white py-4">
+        <div class="container">
+            <h1 class="h2 mb-0">
+                <i class="fas fa-credit-card me-2"></i>Finalizar Compra
+            </h1>
+            <p class="mb-0 mt-1">Completa tu información para proceder al pago</p>
+        </div>
+    </div>
+
+    <div class="container my-5">
+        <div class="row">
+            <!-- Formulario de datos del cliente -->
+            <div class="col-lg-6">
+                <div class="card">
+                    <div class="card-header bg-primary text-white">
+                        <h5 class="mb-0"><i class="fas fa-user me-2"></i>Datos del Cliente</h5>
+                    </div>
+                    <div class="card-body">
+                        <form id="formPago">
+                            <div class="row">
+                                <div class="col-md-6 mb-3">
+                                    <label class="form-label">Nombre *</label>
+                                    <input type="text" class="form-control" id="nombre" name="nombre" required>
+                                </div>
+                                <div class="col-md-6 mb-3">
+                                    <label class="form-label">Apellidos *</label>
+                                    <input type="text" class="form-control" id="apellidos" name="apellidos" required>
+                                </div>
+                            </div>
+                            
+                            <div class="row">
+                                <div class="col-md-6 mb-3">
+                                    <label class="form-label">RUT *</label>
+                                    <input type="text" class="form-control" id="rut" name="rut" placeholder="12.345.678-9" required>
+                                </div>
+                                <div class="col-md-6 mb-3">
+                                    <label class="form-label">Email *</label>
+                                    <input type="email" class="form-control" id="email" name="email" required>
+                                </div>
+                            </div>
+                            
+                            <div class="mb-3">
+                                <label class="form-label">Teléfono *</label>
+                                <input type="tel" class="form-control" id="telefono" name="telefono" required>
+                            </div>
+                            
+                            <div class="mb-3">
+                                <label class="form-label">Dirección *</label>
+                                <input type="text" class="form-control" id="direccion" name="direccion" required>
+                            </div>
+                            
+                            <div class="row">
+                                <div class="col-md-6 mb-3">
+                                    <label class="form-label">Ciudad *</label>
+                                    <input type="text" class="form-control" id="ciudad" name="ciudad" required>
+                                </div>
+                                <div class="col-md-6 mb-3">
+                                    <label class="form-label">Región *</label>
+                                    <select class="form-select" id="region" name="region" required>
+                                        <option value="">Seleccionar región</option>
+                                        <option value="XV">Arica y Parinacota</option>
+                                        <option value="I">Tarapacá</option>
+                                        <option value="II">Antofagasta</option>
+                                        <option value="III">Atacama</option>
+                                        <option value="IV">Coquimbo</option>
+                                        <option value="V">Valparaíso</option>
+                                        <option value="RM">Metropolitana</option>
+                                        <option value="VI">O'Higgins</option>
+                                        <option value="VII">Maule</option>
+                                        <option value="XVI">Ñuble</option>
+                                        <option value="VIII">Biobío</option>
+                                        <option value="IX">Araucanía</option>
+                                        <option value="XIV">Los Ríos</option>
+                                        <option value="X">Los Lagos</option>
+                                        <option value="XI">Aysén</option>
+                                        <option value="XII">Magallanes</option>
+                                    </select>
+                                </div>
+                            </div>
+                        </form>
+                    </div>
+                </div>
+            </div>
+            
+            <!-- Resumen de compra -->
+            <div class="col-lg-6">
+                <div class="card">
+                    <div class="card-header bg-warning">
+                        <h5 class="mb-0"><i class="fas fa-receipt me-2"></i>Resumen de Compra</h5>
+                    </div>
+                    <div class="card-body">
+                        <div id="resumenPago">
+                            <!-- Se carga con JavaScript -->
+                        </div>
+                        
+                        <!-- Método de pago -->
+                        <div class="mt-4 p-3 bg-light rounded">
+                            <h6><i class="fas fa-credit-card me-2"></i>Método de Pago</h6>
+                            <div class="d-flex align-items-center">
+                                <img src="https://www.transbank.cl/wp-content/uploads/2020/03/webpay-1.png" 
+                                     alt="Webpay" style="height: 40px;" class="me-3">
+                                <div>
+                                    <strong>Webpay Plus</strong><br>
+                                    <small class="text-muted">Tarjetas de débito y crédito</small>
+                                </div>
+                            </div>
+                        </div>
+                        
+                        <!-- Botones -->
+                        <div class="d-grid gap-2 mt-4">
+                            <button class="btn btn-success btn-lg" id="btnPagar" disabled>
+                                <i class="fas fa-lock me-2"></i>Pagar con Webpay
+                            </button>
+                            <button class="btn btn-outline-secondary" onclick="window.location.href='{% url 'carrito' %}'">
+                                <i class="fas fa-arrow-left me-2"></i>Volver al Carrito
+                            </button>
+                        </div>
+                        
+                        <!-- Información de seguridad -->
+                        <div class="mt-3 text-center">
+                            <small class="text-muted">
+                                <i class="fas fa-shield-alt me-1"></i>
+                                Pago seguro protegido con encriptación SSL
+                            </small>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Footer -->
+    <footer class="bg-dark text-white py-4 mt-5">
+        <div class="container">
+            <div class="row">
+                <div class="col-md-6">
+                    <h5>ToolShop</h5>
+                    <p class="mb-0">Tu tienda de herramientas de confianza</p>
+                </div>
+                <div class="col-md-6 text-md-end">
+                    <p class="mb-0">© 2025 ToolShop. Todos los derechos reservados.</p>
+                </div>
+            </div>
+        </div>
+    </footer>
+
+    <!-- Loading Modal -->
+    <div class="modal fade" id="loadingModal" tabindex="-1" aria-hidden="true">
+        <div class="modal-dialog modal-dialog-centered">
+            <div class="modal-content">
+                <div class="modal-body text-center py-4">
+                    <div class="spinner-border text-primary mb-3" role="status">
+                        <span class="visually-hidden">Cargando...</span>
+                    </div>
+                    <h5>Procesando pago...</h5>
+                    <p class="text-muted mb-0">Por favor espera, estamos redirigiendo a Webpay</p>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            console.log('Página de pago cargada');
+            
+            // Obtener carrito del localStorage
+            const carrito = JSON.parse(localStorage.getItem('carrito')) || [];
+            const resumenPago = document.getElementById('resumenPago');
+            const btnPagar = document.getElementById('btnPagar');
+            const formPago = document.getElementById('formPago');
+            
+            if (carrito.length === 0) {
+                window.location.href = '{% url 'carrito' %}';
+                return;
+            }
+            
+            // Mostrar resumen de compra
+            function mostrarResumen() {
+                let total = 0;
+                let costosDespacho = 0;
+                let html = '<div class="mb-3">';
+                
+                carrito.forEach((item, index) => {
+                    const subtotal = item.precio * item.cantidad;
+                    const costoDespacho = item.modalidadEntrega === 'despacho' ? 5000 : 0;
+                    
+                    html += `
+                        <div class="d-flex justify-content-between align-items-center py-2 ${index < carrito.length - 1 ? 'border-bottom' : ''}">
+                            <div>
+                                <strong>${item.nombre}</strong><br>
+                                <small class="text-muted">
+                                    Cantidad: ${item.cantidad} × $${item.precio.toFixed(0)}<br>
+                                    ${item.modalidadEntrega === 'despacho' ? 'Despacho: +$5.000' : 'Retiro en tienda'}
+                                </small>
+                            </div>
+                            <div class="text-end">
+                                <strong>$${subtotal.toFixed(0)}</strong>
+                                ${costoDespacho > 0 ? `<br><small class="text-muted">+$${costoDespacho}</small>` : ''}
+                            </div>
+                        </div>
+                    `;
+                    
+                    total += subtotal;
+                    costosDespacho += costoDespacho;
+                });
+                
+                const totalFinal = total + costosDespacho;
+                
+                html += `
+                    </div>
+                    <div class="border-top pt-3">
+                        <div class="d-flex justify-content-between mb-2">
+                            <span>Subtotal productos:</span>
+                            <span>$${total.toFixed(0)}</span>
+                        </div>
+                        <div class="d-flex justify-content-between mb-2">
+                            <span>Costo de despacho:</span>
+                            <span>$${costosDespacho.toFixed(0)}</span>
+                        </div>
+                        <hr>
+                        <div class="d-flex justify-content-between">
+                            <strong>Total a pagar:</strong>
+                            <strong class="text-success fs-4">$${totalFinal.toFixed(0)}</strong>
+                        </div>
+                    </div>
+                `;
+                
+                resumenPago.innerHTML = html;
+                
+                // Habilitar botón pagar si hay productos
+                btnPagar.disabled = false;
+            }
+            
+            // Validar formulario
+            function validarFormulario() {
+                const inputs = formPago.querySelectorAll('input[required], select[required]');
+                let valido = true;
+                
+                inputs.forEach(input => {
+                    if (!input.value.trim()) {
+                        valido = false;
+                    }
+                });
+                
+                return valido;
+            }
+            
+            // Event listeners para validación en tiempo real
+            formPago.addEventListener('input', function() {
+                btnPagar.disabled = !validarFormulario();
+            });
+            
+            // Procesar pago
+            btnPagar.addEventListener('click', function() {
+                if (!validarFormulario()) {
+                    alert('Por favor completa todos los campos obligatorios');
+                    return;
+                }
+                
+                // Mostrar modal de carga
+                const loadingModal = new bootstrap.Modal(document.getElementById('loadingModal'));
+                loadingModal.show();
+                
+                // Preparar datos
+                const formData = new FormData(formPago);
+                const cliente = Object.fromEntries(formData);
+                
+                const total = carrito.reduce((sum, item) => {
+                    const subtotal = item.precio * item.cantidad;
+                    const despacho = item.modalidadEntrega === 'despacho' ? 5000 : 0;
+                    return sum + subtotal + despacho;
+                }, 0);
+                
+                const datosPago = {
+                    carrito: carrito,
+                    total: total,
+                    cliente: cliente
+                };
+                
+                // Enviar solicitud de pago
+                fetch('/api/pago/iniciar/', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                    },
+                    body: JSON.stringify(datosPago)
+                })
+                .then(response => response.json())
+                .then(data => {
+                    loadingModal.hide();
+                    
+                    if (data.success) {
+                        // Crear formulario para redirigir a Webpay
+                        const form = document.createElement('form');
+                        form.method = 'POST';
+                        form.action = data.url;
+                        
+                        const tokenInput = document.createElement('input');
+                        tokenInput.type = 'hidden';
+                        tokenInput.name = 'token_ws';
+                        tokenInput.value = data.token;
+                        
+                        form.appendChild(tokenInput);
+                        document.body.appendChild(form);
+                        
+                        // Limpiar carrito antes de redirigir
+                        localStorage.removeItem('carrito');
+                        
+                        // Redirigir a Webpay
+                        form.submit();
+                    } else {
+                        alert('Error al iniciar el pago: ' + (data.error || 'Error desconocido'));
+                    }
+                })
+                .catch(error => {
+                    loadingModal.hide();
+                    console.error('Error:', error);
+                    alert('Error al procesar el pago. Inténtalo nuevamente.');
+                });
+            });
+            
+            // Mostrar resumen al cargar
+            mostrarResumen();
+        });
+    </script>
+</body>
+</html>

@@ -1,0 +1,116 @@
+{% load static %}
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Pago Exitoso - ToolShop</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+</head>
+<body>
+    <div class="container mt-5">
+        <div class="row justify-content-center">
+            <div class="col-md-8">
+                {% if success %}
+                <div class="card border-success">
+                    <div class="card-header bg-success text-white text-center">
+                        <h3><i class="fas fa-check-circle me-2"></i>¡Pago Exitoso!</h3>
+                    </div>
+                    <div class="card-body">
+                        <div class="alert alert-success">
+                            <h5><i class="fas fa-credit-card me-2"></i>Tu pago ha sido procesado correctamente</h5>
+                        </div>
+                        
+                        <!-- Detalles de la transacción -->
+                        <div class="row">
+                            <div class="col-md-6">
+                                <h6>Detalles de la Orden</h6>
+                                <p><strong>Número de Orden:</strong> {{ orden }}</p>
+                                <p><strong>Total Pagado:</strong> ${{ total|floatformat:0 }}</p>
+                                <p><strong>Fecha:</strong> {{ transaccion.transaction_date }}</p>
+                            </div>
+                            <div class="col-md-6">
+                                <h6>Detalles del Pago</h6>
+                                <p><strong>Código de Autorización:</strong> {{ transaccion.authorization_code }}</p>
+                                <p><strong>Tarjeta:</strong> ****{{ transaccion.card_number }}</p>
+                                <p><strong>Estado:</strong> <span class="badge bg-success">{{ transaccion.status }}</span></p>
+                            </div>
+                        </div>
+                        
+                        <!-- Productos comprados -->
+                        {% if carrito %}
+                        <hr>
+                        <h6>Productos Comprados</h6>
+                        {% for item in carrito %}
+                        <div class="d-flex justify-content-between align-items-center border-bottom py-2">
+                            <div>
+                                <strong>{{ item.nombre }}</strong><br>
+                                <small class="text-muted">Cantidad: {{ item.cantidad }} | Precio: ${{ item.precio|floatformat:0 }}</small>
+                            </div>
+                            <div>
+                                <strong>${{ item.precio|mul:item.cantidad|floatformat:0 }}</strong>
+                            </div>
+                        </div>
+                        {% endfor %}
+                        {% endif %}
+                        
+                        <!-- Información del cliente -->
+                        {% if cliente %}
+                        <hr>
+                        <h6>Información de Entrega</h6>
+                        <p><strong>Cliente:</strong> {{ cliente.nombre|default:"No especificado" }}</p>
+                        <p><strong>Email:</strong> {{ cliente.email|default:"No especificado" }}</p>
+                        <p><strong>Dirección:</strong> {{ cliente.direccion|default:"Retiro en tienda" }}</p>
+                        {% endif %}
+                        
+                        <hr>
+                        <div class="alert alert-info">
+                            <h6><i class="fas fa-info-circle me-2"></i>¿Qué sigue ahora?</h6>
+                            <ul>
+                                <li>Recibirás un email de confirmación con los detalles de tu compra</li>
+                                <li>Para retiros en tienda: Visítanos de Lunes a Viernes de 9:00 a 18:00</li>
+                                <li>Para despachos: Recibirás tu pedido en 2-3 días hábiles</li>
+                            </ul>
+                        </div>
+                        
+                        <div class="text-center mt-4">
+                            <button class="btn btn-success me-3" onclick="window.print()">
+                                <i class="fas fa-print me-2"></i>Imprimir Comprobante
+                            </button>
+                            <a href="{% url 'menu_principal' %}" class="btn btn-primary">
+                                <i class="fas fa-home me-2"></i>Volver al Inicio
+                            </a>
+                        </div>
+                    </div>
+                </div>
+                {% else %}
+                <div class="card border-danger">
+                    <div class="card-header bg-danger text-white text-center">
+                        <h3><i class="fas fa-times-circle me-2"></i>Error en el Pago</h3>
+                    </div>
+                    <div class="card-body text-center">
+                        <div class="alert alert-danger">
+                            {{ error|default:"Ha ocurrido un error procesando tu pago" }}
+                        </div>
+                        <a href="{% url 'carrito' %}" class="btn btn-primary">
+                            <i class="fas fa-arrow-left me-2"></i>Volver al Carrito
+                        </a>
+                    </div>
+                </div>
+                {% endif %}
+            </div>
+        </div>
+    </div>
+    
+    <script>
+        // Limpiar carrito después de pago exitoso
+        {% if success %}
+        localStorage.removeItem('carrito');
+        if (typeof window.actualizarContadorCarrito === 'function') {
+            window.actualizarContadorCarrito();
+        }
+        {% endif %}
+    </script>
+</body>
+</html>
