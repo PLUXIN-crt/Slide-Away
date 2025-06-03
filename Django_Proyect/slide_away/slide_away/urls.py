@@ -13,6 +13,9 @@ urlpatterns = [
     path('menu/', views.ver_menu_principal, name='menu_principal'),
     path('catalogo/', views.ver_catalogo, name='catalogo'),
     path('carrito/', views.ver_carrito, name='carrito'),
+    # Nuevos endpoints para carrito
+    path('api/carrito/productos/', views.obtener_productos_carrito, name='api_carrito_productos'),
+    path('api/producto/<int:producto_id>/', views.obtener_producto_por_id, name='api_producto_id'),
 ]
 
 # Servir archivos media en desarrollo
