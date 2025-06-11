@@ -1,122 +1,268 @@
-Table comuna {
-  id int [pk, not null]
-  nombre varchar(30) [not null]
-}
+-- 1) Crear y usar la base de datos
+DROP DATABASE IF EXISTS `morning_glory`;
+CREATE DATABASE `morning_glory` CHARACTER SET utf8mb4 COLLATE utf8mb4_spanish_ci;
+USE `morning_glory`;
 
+-- 2) Definir tablas
 
+CREATE TABLE comuna (
+  id INT            PRIMARY KEY NOT NULL,
+  nombre VARCHAR(30) NOT NULL
+);
 
-Table cliente {
-  rut varchar(12) [pk, not null]
-  nombre varchar(30) [not null]
-  apellidos varchar(30) [not null]
-  telefono varchar(30) [not null]
-  correo varchar(30) [not null]
-  id_comuna int [not null, ref: > comuna.id]
-}
+CREATE TABLE cliente (
+  rut         VARCHAR(12) PRIMARY KEY NOT NULL,
+  nombre      VARCHAR(30) NOT NULL,
+  apellidos   VARCHAR(30) NOT NULL,
+  telefono    VARCHAR(30) NOT NULL,
+  correo      VARCHAR(30) NOT NULL,
+  id_comuna   INT         NOT NULL,
+  FOREIGN KEY (id_comuna) REFERENCES comuna(id)
+);
 
-Table direccion {
-  id_direccion int [pk, not null]
-  rut_cliente varchar(12) [not null, ref: > cliente.rut]
-  calle varchar(20) [not null]
-  numero_casa int [not null]
-  villa varchar(30) [not null]
-  id_comuna int [not null, ref: > comuna.id]
-}
+CREATE TABLE direccion (
+  id_direccion INT        PRIMARY KEY NOT NULL,
+  rut_cliente  VARCHAR(12) NOT NULL,
+  calle        VARCHAR(20) NOT NULL,
+  numero_casa  INT        NOT NULL,
+  villa        VARCHAR(30) NOT NULL,
+  id_comuna    INT        NOT NULL,
+  FOREIGN KEY (rut_cliente) REFERENCES cliente(rut),
+  FOREIGN KEY (id_comuna)   REFERENCES comuna(id)
+);
 
-Table despacho {
-  num_despacho int [pk, not null]
-  rut_cliente varchar(12) [not null, ref: > cliente.rut]
-  fecha_despacho date [not null]
-}
+CREATE TABLE despacho (
+  num_despacho  INT       PRIMARY KEY NOT NULL,
+  rut_cliente   VARCHAR(12) NOT NULL,
+  fecha_despacho DATE      NOT NULL,
+  FOREIGN KEY (rut_cliente) REFERENCES cliente(rut)
+);
 
-Table tipo_pago {
-  id_tipo_pago int [pk, not null]
-  nombre varchar(30) [not null]
-  descripcion varchar(100)
-}
+CREATE TABLE tipo_pago (
+  id_tipo_pago INT            PRIMARY KEY NOT NULL,
+  nombre        VARCHAR(30)   NOT NULL,
+  descripcion   VARCHAR(100)
+);
 
-Table venta {
-  numero_documento int [pk, not null]
-  tipo_documento varchar(20) [not null]
-  fecha_venta date [not null]
-  total_venta decimal(10,2) [not null]
-  id_tipo_pago int [not null, ref: > tipo_pago.id_tipo_pago]
-  rut_cliente varchar(12) [not null, ref: > cliente.rut]
-  nombre_cliente varchar (12) [not null]
-  apellido_cliente varchar (12) [not null]
-  id_sucursal int [not null, ref: > sucursal.id_sucursal]
-}
+CREATE TABLE sucursal (
+  id_sucursal     INT          PRIMARY KEY NOT NULL,
+  nombre_sucursal VARCHAR(50)  NOT NULL,
+  id_comuna       INT          NOT NULL,
+  rut_encargado   VARCHAR(15)  NOT NULL,
+  FOREIGN KEY (id_comuna)     REFERENCES comuna(id),
+  FOREIGN KEY (rut_encargado) REFERENCES cliente(rut)  -- o empleado(rut) si corresponde
+);
 
-Table detalleventa {
-  numero_documento int [pk, not null, ref: > venta.numero_documento]
-  id_producto int [pk, not null, ref: > producto.id]
-  cantidad int [not null]
-  rut_empleado varchar(15) [ref: > empleado.rut]
-}
+CREATE TABLE venta (
+  numero_documento  INT             PRIMARY KEY NOT NULL,
+  tipo_documento    VARCHAR(20)     NOT NULL,
+  fecha_venta       DATE            NOT NULL,
+  total_venta       DECIMAL(10,2)   NOT NULL,
+  id_tipo_pago      INT             NOT NULL,
+  rut_cliente       VARCHAR(12)     NOT NULL,
+  nombre_cliente    VARCHAR(30)     NOT NULL,
+  apellido_cliente  VARCHAR(30)     NOT NULL,
+  id_sucursal       INT             NOT NULL,
+  FOREIGN KEY (id_tipo_pago)      REFERENCES tipo_pago(id_tipo_pago),
+  FOREIGN KEY (rut_cliente)       REFERENCES cliente(rut),
+  FOREIGN KEY (id_sucursal)       REFERENCES sucursal(id_sucursal)
+);
 
-Table proveedor {
-  id int [pk, increment]
-  nombre varchar(100) [not null]
-  telefono varchar(20)
-  correo varchar(100)
-  direccion varchar(200)
-}
+-- Para poder forzar las dos referencias a nombre/apellidos de cliente,
+-- primero aseguramos que esas columnas sean UNIQUE:
+ALTER TABLE cliente
+  ADD UNIQUE(nombre),
+  ADD UNIQUE(apellidos);
 
-Table marca {
-  id int [pk, increment]
-  nombre varchar(50) [not null]
-}
+ALTER TABLE venta
+  ADD CONSTRAINT fk_venta_nom_cliente FOREIGN KEY (nombre_cliente)   REFERENCES cliente(nombre),
+  ADD CONSTRAINT fk_venta_ape_cliente FOREIGN KEY (apellido_cliente) REFERENCES cliente(apellidos);
 
-Table categoria {
-  id int [pk, increment]
-  nombre varchar(50) [not null]
-}
+CREATE TABLE proveedor (
+  id         INT           AUTO_INCREMENT PRIMARY KEY,
+  nombre     VARCHAR(100)  NOT NULL,
+  telefono   VARCHAR(20),
+  correo     VARCHAR(100),
+  direccion  VARCHAR(200)
+);
 
-Table producto {
-  id int [pk, increment]
-  nombre varchar(100) [not null]
-  descripcion varchar(255)
-  id_categoria int [not null, ref: > categoria.id]
-  id_marca int [not null, ref: > marca.id]
-  id_proveedor int [not null, ref: > proveedor.id]
-  stock int [not null, default: 0]
-  precio decimal(10,2) [not null]
-}
+CREATE TABLE marca (
+  id     INT          AUTO_INCREMENT PRIMARY KEY,
+  nombre VARCHAR(50)  NOT NULL
+);
 
-Table empleado {
-  rut varchar(15) [pk, not null]
-  nombre varchar(30) [not null]
-  telefono varchar(30) [not null]
-  correo varchar(30) [not null]
-  id_comuna int [not null, ref: > comuna.id]
-}
+CREATE TABLE categoria (
+  id     INT          AUTO_INCREMENT PRIMARY KEY,
+  nombre VARCHAR(50)  NOT NULL
+);
 
-Table sucursal {
-  id_sucursal int [pk, not null]
-  nombre_sucursal varchar(50) [not null]
-  id_comuna int [not null, ref: > comuna.id]
-  rut_encargado varchar(15) [not null, ref: > empleado.rut]
-}
+CREATE TABLE producto (
+  id            INT            AUTO_INCREMENT PRIMARY KEY,
+  nombre        VARCHAR(100)   NOT NULL,
+  descripcion   VARCHAR(255),
+  id_categoria  INT            NOT NULL,
+  id_marca      INT            NOT NULL,
+  id_proveedor  INT            NOT NULL,
+  stock         INT            NOT NULL DEFAULT 0,
+  precio        DECIMAL(10,2)  NOT NULL,
+  FOREIGN KEY (id_categoria) REFERENCES categoria(id),
+  FOREIGN KEY (id_marca)     REFERENCES marca(id),
+  FOREIGN KEY (id_proveedor) REFERENCES proveedor(id)
+);
 
-Table stocksucursal {
-  id_stock int [pk, not null]
-  id_producto int [not null, ref: > producto.id]
-  id_sucursal int [not null, ref: > sucursal.id_sucursal]
-  stock int [not null]
-}
+CREATE TABLE empleado (
+  rut         VARCHAR(15) PRIMARY KEY NOT NULL,
+  nombre      VARCHAR(30) NOT NULL,
+  telefono    VARCHAR(30) NOT NULL,
+  correo      VARCHAR(30) NOT NULL,
+  id_comuna   INT         NOT NULL,
+  FOREIGN KEY (id_comuna) REFERENCES comuna(id)
+);
 
-Table imagen_producto {
-  id_imagen int [pk, not null]
-  id_producto int [not null, ref: > producto.id]
-  imagen varchar(255) [not null]
-  descripcion varchar(255) [not null]
-}
+CREATE TABLE stocksucursal (
+  id_stock    INT NOT NULL PRIMARY KEY,
+  id_producto INT NOT NULL,
+  id_sucursal INT NOT NULL,
+  stock       INT NOT NULL,
+  FOREIGN KEY (id_producto) REFERENCES producto(id),
+  FOREIGN KEY (id_sucursal) REFERENCES sucursal(id_sucursal)
+);
 
+CREATE TABLE imagen_producto (
+  id_imagen    INT          PRIMARY KEY NOT NULL,
+  id_producto  INT          NOT NULL,
+  imagen       VARCHAR(255) NOT NULL,
+  descripcion  VARCHAR(255) NOT NULL,
+  FOREIGN KEY (id_producto) REFERENCES producto(id)
+);
 
+USE `morning_glory`;
 
+-- 1) Poblamos categorías (IDs 1 a 20)
+INSERT INTO categoria (id, nombre) VALUES
+  (1,'Herramientas manuales'),
+  (2,'Herramientas eléctricas'),
+  (3,'Fontanería'),
+  (4,'Eléctricos'),
+  (5,'Pinturas y acabados'),
+  (6,'Ferretería general'),
+  (7,'Adhesivos y sellantes'),
+  (8,'Tornillería'),
+  (9,'Seguridad industrial'),
+  (10,'Jardinería'),
+  (11,'Cemento y mortero'),
+  (12,'Abrasivos'),
+  (13,'Soldadura'),
+  (14,'Instrumentos de medición'),
+  (15,'Materiales de construcción'),
+  (16,'Iluminación'),
+  (17,'Ventilación y climatización'),
+  (18,'Aislamiento'),
+  (19,'Accesorios eléctricos'),
+  (20,'Ferretería automotriz');
 
+-- 2) Poblamos marcas (IDs 1 a 20)
+INSERT INTO marca (id, nombre) VALUES
+  (1,'Makita'),
+  (2,'Stanley'),
+  (3,'Black+Decker'),
+  (4,'Bosch'),
+  (5,'DeWalt'),
+  (6,'Ryobi'),
+  (7,'Einhell'),
+  (8,'Milwaukee'),
+  (9,'Festool'),
+  (10,'Dremel'),
+  (11,'Husqvarna'),
+  (12,'3M'),
+  (13,'Loctite'),
+  (14,'Irwin'),
+  (15,'Truper'),
+  (16,'Skil'),
+  (17,'Rust-Oleum'),
+  (18,'Sika'),
+  (19,'Minwax'),
+  (20,'GenericPro');
 
+-- 3) Poblamos proveedores (IDs 1 a 20)
+INSERT INTO proveedor (id, nombre, telefono, correo, direccion) VALUES
+  (1,'Construmart',               '+56 2 2345 6781','ventas@construmart.cl',             'Av. Providencia 1111, Santiago'),
+  (2,'Homecenter Sodimac',        '+56 2 2345 6782','contacto@sodimac.cl',               'Av. Departamental 2222, Maipú'),
+  (3,'Ferretería Central',        '+56 2 2345 6783','info@ferrecentral.cl',              'Calle Real 333, Cerrillos'),
+  (4,'Ferretería El Tornillo',    '+56 2 2345 6784','ventas@eltornillo.cl',               'Av. Las Condes 4444, Las Condes'),
+  (5,'FerrePunta',                '+56 2 2345 6785','contacto@ferrepunta.cl',             'Av. Beaucheff 5555, Santiago'),
+  (6,'Distribuciones Chile',      '+56 2 2345 6786','ventas@distribucioneschile.cl',     'Av. España 6666, Santiago'),
+  (7,'Suministros Ferreteros',    '+56 2 2345 6787','contacto@suministrosferreteros.cl', 'Av. Libertador 7777, Viña del Mar'),
+  (8,'Proveedora Industrial',     '+56 2 2345 6788','ventas@proveedoraindustrial.cl',     'Av. Matta 8888, Santiago'),
+  (9,'Mega Ferretería',           '+56 2 2345 6789','info@megaferreteria.cl',            'Av. Vespucio 9999, San Miguel'),
+  (10,'Soluciones en Construcción','+56 2 2320 1001','contacto@solucionesconst.cl',      'Av. Grecia 1010, Maipú'),
+  (11,'Materiales y Herramientas', '+56 2 2320 1002','ventas@materialesyherr.cl',         'Av. Manuel Montt 1111, Providencia'),
+  (12,'FerreGlobal',               '+56 2 2320 1003','contacto@ferreglobal.cl',          'Av. Suecia 1212, Ñuñoa'),
+  (13,'Equipos y Suministros',     '+56 2 2320 1004','ventas@equiposy.su.cl',             'Av. Kennedy 1313, Las Condes'),
+  (14,'Ferretería Sur',            '+56 2 2320 1005','contacto@ferresur.cl',              'Av. Vicuña Mackenna 1414, Ñuñoa'),
+  (15,'Nordic Ferreteros',         '+56 2 2320 1006','ventas@nordicferreteros.cl',        'Av. El Sol 1515, Vitacura'),
+  (16,'Andes Suministros',         '+56 2 2320 1007','contacto@andessuministros.cl',      'Av. Apoquindo 1616, Las Condes'),
+  (17,'FerreCenter',               '+56 2 2320 1008','ventas@ferrecenter.cl',             'Av. Colón 1717, Santiago'),
+  (18,'Proequipos',                '+56 2 2320 1009','contacto@proequipos.cl',            'Av. El Carmen 1818, Santiago'),
+  (19,'Innova Ferreteros',         '+56 2 2320 1010','ventas@innovaferr.cl',              'Av. San Diego 1919, Santiago'),
+  (20,'TopTools',                  '+56 2 2320 1011','contacto@toptools.cl',             'Av. Lo Espejo 2020, Lo Espejo');
 
-Ref: "cliente"."nombre" < "venta"."nombre_cliente"
+-- 4) Ahora sí insertamos productos (ya existirán todos los FK)
+INSERT INTO producto 
+  (nombre, descripcion, id_categoria, id_marca, id_proveedor, stock, precio) 
+VALUES
+  -- Herramientas manuales
+  ('Martillo de uña 16 oz',     'Cabeza de acero forjado, mango fiberglás', 1,  2,  1,  25,   8000.00),
+  ('Destornillador Phillips #2','Mango ergonómico, punta magnética',      1, 14,  1,  40,   4500.00),
+  ('Llave de vaso 1/2\" set 10','Cromo vanadio',                         1,  2, 10,  35,  22000.00),
 
-Ref: "cliente"."apellidos" < "venta"."apellido_cliente"
+  -- Herramientas eléctricas
+  ('Taladro inalámbrico 18V',    'Batería Li-Ion, velocidad variable',     2,  6,  2,  15,  65000.00),
+  ('Taladro percutor 650 W',     'Función martillo, 13 mm',                2,  1,  2,  12,  42000.00),
+  ('Sierra circular 7¼\"',       'Potencia 1.400 W, disco 184 mm',         2,  4,  2,  10,  85000.00),
+
+  -- Fontanería
+  ('Tubo PVC Ø ½\" x 3 m',       'Certificado ASTM, presión 10 bar',       3, 20,  3, 100,   2400.00),
+  ('Codo PVC 90° Ø ½\"',         'Unión rápida, alta resistencia',         3, 20,  3, 200,    350.00),
+
+  -- Eléctricos
+  ('Cable eléctrico 2x1.5 mm²',  'RoHS, cobre OFC',                        4, 20,  1,  50,   1200.00),
+  ('Regleta eléctrica 6 puertos','Protección contra sobrecarga',          4, 20,  9,  75,  15000.00),
+  ('Extensión eléctrica 5 m',    'Con protector térmico',                  4, 20, 10,  60,  14500.00),
+
+  -- Pinturas y acabados
+  ('Pintura látex blanca 1 gal', 'Interior, alto rendimiento',             5, 17,  2,  30,  18500.00),
+  ('Thinner para esmalte 1 L',   'Solvente universal para pinturas',       5, 17,  3,  60,   7200.00),
+  ('Rodillo de pintura 9\"',     'Mango fibra, rodillo de lana',           5, 20, 12,  55,   6500.00),
+
+  -- Ferretería general
+  ('Juego de tornillos 3×20 mm 100 u','Acero zincado',                     6, 15,  1, 150,   2200.00),
+  ('Broca para madera 5 mm',     'Acero rápido HSS',                      6,  7,  1,  75,   1800.00),
+
+  -- Adhesivos y sellantes
+  ('Pistola de silicona caliente','Incluye barras adhesivas',            7, 13, 11,  45,   8500.00),
+  ('Tubo de silicona 300 ml',    'Sellado resistente a humedad',           7, 13, 18, 100,   5500.00),
+
+  -- Tornillería y abrasivos
+  ('Disco de corte 115 mm',      'Abrasivo para metal',                   12, 20,  7, 200,   1200.00),
+
+  -- Seguridad industrial
+  ('Candado de seguridad 50 mm', 'Acero laminado, llave tubular',          9, 20,  4,  60,   7500.00),
+  ('Guantes de cuero para obra','Talla L, palma reforzada',               9, 20,  4, 120,   5500.00),
+  ('Máscara de soldar automática','Oscurecimiento variable',            13, 20,  8,  25,  38000.00),
+
+  -- Jardinería
+  ('Manguera jardín 15 m',       'PVC reforzado, conexiones metálicas',   10, 20,  5,  40,  12500.00),
+
+  -- Cemento y construcción
+  ('Bolsa de cemento 50 kg',     'Portland, resistencia 42.5',           11, 20,  6,  80,   4500.00),
+  ('Ladrillo cerámico 24×11×8 cm','Resistencia alta, cocido',            15, 20,  6, 500,    450.00),
+
+  -- Instrumentos de medición
+  ('Cinta métrica 5 m',          'Acero con recubrimiento ABS',          14,  8,  9,  90,   6000.00),
+  ('Nivel de burbuja 60 cm',     'Aluminio anodizado',                   14,  8,  9,  50,   8000.00),
+
+  -- Ventilación e aislamiento
+  ('Ventilador extracto 150 mm', 'Silencioso, 220 V',                    17, 20,  8,  20,   9500.00),
+  ('Panel aislante 1×2 m EPS',   'Espuma expandida, 20 mm',              18, 20, 16,  30,  12000.00);
+
