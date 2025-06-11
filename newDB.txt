@@ -1,0 +1,122 @@
+Table comuna {
+  id int [pk, not null]
+  nombre varchar(30) [not null]
+}
+
+
+
+Table cliente {
+  rut varchar(12) [pk, not null]
+  nombre varchar(30) [not null]
+  apellidos varchar(30) [not null]
+  telefono varchar(30) [not null]
+  correo varchar(30) [not null]
+  id_comuna int [not null, ref: > comuna.id]
+}
+
+Table direccion {
+  id_direccion int [pk, not null]
+  rut_cliente varchar(12) [not null, ref: > cliente.rut]
+  calle varchar(20) [not null]
+  numero_casa int [not null]
+  villa varchar(30) [not null]
+  id_comuna int [not null, ref: > comuna.id]
+}
+
+Table despacho {
+  num_despacho int [pk, not null]
+  rut_cliente varchar(12) [not null, ref: > cliente.rut]
+  fecha_despacho date [not null]
+}
+
+Table tipo_pago {
+  id_tipo_pago int [pk, not null]
+  nombre varchar(30) [not null]
+  descripcion varchar(100)
+}
+
+Table venta {
+  numero_documento int [pk, not null]
+  tipo_documento varchar(20) [not null]
+  fecha_venta date [not null]
+  total_venta decimal(10,2) [not null]
+  id_tipo_pago int [not null, ref: > tipo_pago.id_tipo_pago]
+  rut_cliente varchar(12) [not null, ref: > cliente.rut]
+  nombre_cliente varchar (12) [not null]
+  apellido_cliente varchar (12) [not null]
+  id_sucursal int [not null, ref: > sucursal.id_sucursal]
+}
+
+Table detalleventa {
+  numero_documento int [pk, not null, ref: > venta.numero_documento]
+  id_producto int [pk, not null, ref: > producto.id]
+  cantidad int [not null]
+  rut_empleado varchar(15) [ref: > empleado.rut]
+}
+
+Table proveedor {
+  id int [pk, increment]
+  nombre varchar(100) [not null]
+  telefono varchar(20)
+  correo varchar(100)
+  direccion varchar(200)
+}
+
+Table marca {
+  id int [pk, increment]
+  nombre varchar(50) [not null]
+}
+
+Table categoria {
+  id int [pk, increment]
+  nombre varchar(50) [not null]
+}
+
+Table producto {
+  id int [pk, increment]
+  nombre varchar(100) [not null]
+  descripcion varchar(255)
+  id_categoria int [not null, ref: > categoria.id]
+  id_marca int [not null, ref: > marca.id]
+  id_proveedor int [not null, ref: > proveedor.id]
+  stock int [not null, default: 0]
+  precio decimal(10,2) [not null]
+}
+
+Table empleado {
+  rut varchar(15) [pk, not null]
+  nombre varchar(30) [not null]
+  telefono varchar(30) [not null]
+  correo varchar(30) [not null]
+  id_comuna int [not null, ref: > comuna.id]
+}
+
+Table sucursal {
+  id_sucursal int [pk, not null]
+  nombre_sucursal varchar(50) [not null]
+  id_comuna int [not null, ref: > comuna.id]
+  rut_encargado varchar(15) [not null, ref: > empleado.rut]
+}
+
+Table stocksucursal {
+  id_stock int [pk, not null]
+  id_producto int [not null, ref: > producto.id]
+  id_sucursal int [not null, ref: > sucursal.id_sucursal]
+  stock int [not null]
+}
+
+Table imagen_producto {
+  id_imagen int [pk, not null]
+  id_producto int [not null, ref: > producto.id]
+  imagen varchar(255) [not null]
+  descripcion varchar(255) [not null]
+}
+
+
+
+
+
+
+Ref: "cliente"."nombre" < "venta"."nombre_cliente"
+
+Ref: "cliente"."apellidos" < "venta"."apellido_cliente"
