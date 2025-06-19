@@ -71,6 +71,15 @@ public class ProductoController {
         }
     }
 
+    @GetMapping("/dto")
+    public ResponseEntity<List<ProductoDTO>> getAllProductosDTO() {
+        List<Producto> productos = productoRepository.findAll();
+        List<ProductoDTO> productosDTO = productos.stream()
+                .map(this::convertToDTO)
+                .collect(Collectors.toList());
+        return ResponseEntity.ok(productosDTO);
+    }
+
     // Actualizar producto existente
     @PutMapping("/{id}")
     public ResponseEntity<ProductoDTO> updateProducto(@PathVariable Integer id, @RequestBody ProductoDTO productoDTO) {

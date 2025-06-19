@@ -68,12 +68,13 @@ def obtener_empleados():
         return []
 
 def obtener_productos():
-    url="http://127.0.0.1:8089/api/productos/dto"
+    url="http://127.0.0.1:8089/api/productos/dto"  # Usar el nuevo endpoint DTO
     try:
         response = requests.get(url, timeout=5)
         if response.status_code == 200:
             data = response.json()
             print(f"Productos obtenidos: {len(data)}")
+            # Los datos ahora incluyen nombreCategoria, nombreMarca, nombreProveedor
             return data
         else:
             print(f"Error en productos: {response.status_code}")
@@ -81,7 +82,6 @@ def obtener_productos():
     except Exception as e:
         print(f"Error al obtener productos: {e}")
         return []
-
 def obtener_categorias():
     url="http://127.0.0.1:8089/api/categorias"
     try:
