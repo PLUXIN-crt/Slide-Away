@@ -1,8 +1,9 @@
--- 1) Crear y usar la base de datos
-DROP DATABASE IF EXISTS `morning_glory`;
-CREATE DATABASE `morning_glory` CHARACTER SET utf8mb4 COLLATE utf8mb4_spanish_ci;
-USE `morning_glory`;
 
+CREATE DATABASE `rrhh`;
+create user "pluxi"@"%" identified by "123";
+grant all privileges on rrhh.* to "jefe"@"%";
+flush privileges;
+USE rrhh;
 -- 2) Definir tablas
 
 CREATE TABLE comuna (
@@ -136,7 +137,7 @@ CREATE TABLE imagen_producto (
   FOREIGN KEY (id_producto) REFERENCES producto(id)
 );
 
-USE `morning_glory`;
+USE `rrhh`;
 
 -- 1) Poblamos categorías (IDs 1 a 20)
 INSERT INTO categoria (id, nombre) VALUES

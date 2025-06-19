@@ -1,116 +1,178 @@
 package com.rrhh.gestion.controller;
 
-import com.rrhh.gestion.entity.Producto;
-import com.rrhh.gestion.repository.ProductoRepository;
 import com.rrhh.gestion.dto.ProductoDTO;
+import com.rrhh.gestion.entity.*;
+import com.rrhh.gestion.repository.*;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
-import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
+import java.util.stream.Collectors;
 
 @RestController
 @RequestMapping("/api/productos")
+@CrossOrigin(origins = "*")
 public class ProductoController {
 
     @Autowired
     private ProductoRepository productoRepository;
+    
+    @Autowired
+    private CategoriaRepository categoriaRepository;
+    
+    @Autowired
+    private MarcaRepository marcaRepository;
+    
+    @Autowired
+    private ProveedorRepository proveedorRepository;
 
+    // Obtener todos los productos
     @GetMapping
-    public List<Producto> obtenerProductos() {
-        return productoRepository.findAll();
-    }
-
-    @GetMapping("/dto")
-    public List<ProductoDTO> obtenerProductosDTO() {
+    public ResponseEntity<List<ProductoDTO>> getAllProductos() {
         List<Producto> productos = productoRepository.findAll();
-        List<ProductoDTO> productosDTO = new ArrayList<>();
-        for (Producto p : productos) {
-            productosDTO.add(new ProductoDTO(
-                    p.getId(), p.getNombre(), p.getDescripcion(),
-                    p.getStock(), p.getPrecio(),
-                    p.getCategoria().getNombre(),
-                    p.getMarca().getNombre(),
-                    p.getProveedor().getNombre()
-            ));
-        }
-        return productosDTO;
+        List<ProductoDTO> productosDTO = productos.stream()
+                .map(this::convertToDTO)
+                .collect(Collectors.toList());
+        return ResponseEntity.ok(productosDTO);
     }
 
+    // Buscar producto por ID
     @GetMapping("/{id}")
-    public ResponseEntity<Producto> obtenerProducto(@PathVariable int id) {
+    public ResponseEntity<ProductoDTO> getProductoById(@PathVariable Integer id) {
         Optional<Producto> producto = productoRepository.findById(id);
-        return producto.map(p -> ResponseEntity.ok(p))
-                .orElse(ResponseEntity.notFound().build());
+        if (producto.isPresent()) {
+            return ResponseEntity.ok(convertToDTO(producto.get()));
+        }
+        return ResponseEntity.notFound().build();
     }
 
-    @GetMapping("/categoria/{categoriaId}")
-    public List<Producto> obtenerProductosPorCategoria(@PathVariable int categoriaId) {
-        return productoRepository.findByCategoriaId(categoriaId);
-    }
-
-    @GetMapping("/marca/{marcaId}")
-    public List<Producto> obtenerProductosPorMarca(@PathVariable int marcaId) {
-        return productoRepository.findByMarcaId(marcaId);
-    }
-
-    @GetMapping("/proveedor/{proveedorId}")
-    public List<Producto> obtenerProductosPorProveedor(@PathVariable int proveedorId) {
-        return productoRepository.findByProveedorId(proveedorId);
-    }
-
-    @GetMapping("/stock-bajo/{limite}")
-    public List<Producto> obtenerProductosConStockBajo(@PathVariable int limite) {
-        return productoRepository.findByStockLessThan(limite);
-    }
-
+    // Buscar productos por nombre
     @GetMapping("/buscar")
-    public List<Producto> buscarProductos(@RequestParam String nombre) {
-        return productoRepository.findByNombreContaining(nombre);
+    public ResponseEntity<List<ProductoDTO>> buscarProductosPorNombre(@RequestParam String nombre) {
+        List<Producto> productos = productoRepository.findByNombreContainingIgnoreCase(nombre);
+        List<ProductoDTO> productosDTO = productos.stream()
+                .map(this::convertToDTO)
+                .collect(Collectors.toList());
+        return ResponseEntity.ok(productosDTO);
     }
 
+    // Crear nuevo producto
     @PostMapping
-    public ResponseEntity<Producto> crearProducto(@RequestBody Producto producto) {
-        Producto nuevo = productoRepository.save(producto);
-        return new ResponseEntity<>(nuevo, HttpStatus.CREATED);
+    public ResponseEntity<ProductoDTO> createProducto(@RequestBody ProductoDTO productoDTO) {
+        try {
+            Producto producto = convertToEntity(productoDTO);
+            Producto productoGuardado = productoRepository.save(producto);
+            return ResponseEntity.status(HttpStatus.CREATED).body(convertToDTO(productoGuardado));
+        } catch (Exception e) {
+            return ResponseEntity.badRequest().build();
+        }
     }
 
+    // Actualizar producto existente
     @PutMapping("/{id}")
-    public ResponseEntity<Producto> actualizarProducto(@PathVariable int id, @RequestBody Producto producto) {
-        return productoRepository.findById(id)
-                .map(p -> {
-                    p.setNombre(producto.getNombre());
-                    p.setDescripcion(producto.getDescripcion());
-                    p.setStock(producto.getStock());
-                    p.setPrecio(producto.getPrecio());
-                    p.setCategoria(producto.getCategoria());
-                    p.setMarca(producto.getMarca());
-                    p.setProveedor(producto.getProveedor());
-                    return ResponseEntity.ok(productoRepository.save(p));
-                })
-                .orElse(ResponseEntity.notFound().build());
+    public ResponseEntity<ProductoDTO> updateProducto(@PathVariable Integer id, @RequestBody ProductoDTO productoDTO) {
+        Optional<Producto> productoExistente = productoRepository.findById(id);
+        if (productoExistente.isPresent()) {
+            try {
+                Producto producto = productoExistente.get();
+                producto.setNombre(productoDTO.getNombre());
+                producto.setDescripcion(productoDTO.getDescripcion());
+                producto.setStock(productoDTO.getStock());
+                producto.setPrecio(productoDTO.getPrecio());
+                
+                // Actualizar relaciones si es necesario
+                if (productoDTO.getIdCategoria() != null) {
+                    Categoria categoria = categoriaRepository.findById(productoDTO.getIdCategoria())
+                            .orElseThrow(() -> new RuntimeException("Categoría no encontrada"));
+                    producto.setCategoria(categoria);
+                }
+                
+                if (productoDTO.getIdMarca() != null) {
+                    Marca marca = marcaRepository.findById(productoDTO.getIdMarca())
+                            .orElseThrow(() -> new RuntimeException("Marca no encontrada"));
+                    producto.setMarca(marca);
+                }
+                
+                if (productoDTO.getIdProveedor() != null) {
+                    Proveedor proveedor = proveedorRepository.findById(productoDTO.getIdProveedor())
+                            .orElseThrow(() -> new RuntimeException("Proveedor no encontrado"));
+                    producto.setProveedor(proveedor);
+                }
+                
+                Producto productoActualizado = productoRepository.save(producto);
+                return ResponseEntity.ok(convertToDTO(productoActualizado));
+            } catch (Exception e) {
+                return ResponseEntity.badRequest().build();
+            }
+        }
+        return ResponseEntity.notFound().build();
     }
 
-    @PatchMapping("/{id}/stock")
-    public ResponseEntity<Producto> actualizarStock(@PathVariable int id, @RequestParam int nuevoStock) {
-        return productoRepository.findById(id)
-                .map(p -> {
-                    p.setStock(nuevoStock);
-                    return ResponseEntity.ok(productoRepository.save(p));
-                })
-                .orElse(ResponseEntity.notFound().build());
-    }
-
+    // Eliminar producto
     @DeleteMapping("/{id}")
-    public ResponseEntity<Void> eliminarProducto(@PathVariable int id) {
-        return productoRepository.findById(id)
-                .map(p -> {
-                    productoRepository.delete(p);
-                    return ResponseEntity.ok().<Void>build();
-                })
-                .orElse(ResponseEntity.notFound().build());
+    public ResponseEntity<Void> deleteProducto(@PathVariable Integer id) {
+        if (productoRepository.existsById(id)) {
+            productoRepository.deleteById(id);
+            return ResponseEntity.noContent().build();
+        }
+        return ResponseEntity.notFound().build();
+    }
+
+    // Métodos de conversión
+    private ProductoDTO convertToDTO(Producto producto) {
+        ProductoDTO dto = new ProductoDTO();
+        dto.setId(producto.getId());
+        dto.setNombre(producto.getNombre());
+        dto.setDescripcion(producto.getDescripcion());
+        dto.setStock(producto.getStock());
+        dto.setPrecio(producto.getPrecio());
+        
+        if (producto.getCategoria() != null) {
+            dto.setIdCategoria(producto.getCategoria().getId());
+            dto.setNombreCategoria(producto.getCategoria().getNombre());
+        }
+        
+        if (producto.getMarca() != null) {
+            dto.setIdMarca(producto.getMarca().getId());
+            dto.setNombreMarca(producto.getMarca().getNombre());
+        }
+        
+        if (producto.getProveedor() != null) {
+            dto.setIdProveedor(producto.getProveedor().getId());
+            dto.setNombreProveedor(producto.getProveedor().getNombre());
+        }
+        
+        return dto;
+    }
+
+    private Producto convertToEntity(ProductoDTO dto) {
+        Producto producto = new Producto();
+        producto.setNombre(dto.getNombre());
+        producto.setDescripcion(dto.getDescripcion());
+        producto.setStock(dto.getStock());
+        producto.setPrecio(dto.getPrecio());
+        
+        if (dto.getIdCategoria() != null) {
+            Categoria categoria = categoriaRepository.findById(dto.getIdCategoria())
+                    .orElseThrow(() -> new RuntimeException("Categoría no encontrada"));
+            producto.setCategoria(categoria);
+        }
+        
+        if (dto.getIdMarca() != null) {
+            Marca marca = marcaRepository.findById(dto.getIdMarca())
+                    .orElseThrow(() -> new RuntimeException("Marca no encontrada"));
+            producto.setMarca(marca);
+        }
+        
+        if (dto.getIdProveedor() != null) {
+            Proveedor proveedor = proveedorRepository.findById(dto.getIdProveedor())
+                    .orElseThrow(() -> new RuntimeException("Proveedor no encontrado"));
+            producto.setProveedor(proveedor);
+        }
+        
+        return producto;
     }
 }

@@ -4,14 +4,19 @@ import com.rrhh.gestion.entity.Producto;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
+import org.springframework.stereotype.Repository;
+
 import java.util.List;
 
+@Repository
 public interface ProductoRepository extends JpaRepository<Producto, Integer> {
-    List<Producto> findByCategoriaId(int categoriaId);
-    List<Producto> findByMarcaId(int marcaId);
-    List<Producto> findByProveedorId(int proveedorId);
-    List<Producto> findByStockLessThan(int stock);
-
-    @Query("SELECT p FROM Producto p WHERE p.nombre LIKE %:nombre%")
-    List<Producto> findByNombreContaining(@Param("nombre") String nombre);
+    
+    @Query("SELECT p FROM Producto p JOIN FETCH p.categoria JOIN FETCH p.marca JOIN FETCH p.proveedor WHERE p.nombre LIKE %:nombre%")
+    List<Producto> findByNombreContainingIgnoreCase(@Param("nombre") String nombre);
+    
+    @Query("SELECT p FROM Producto p JOIN FETCH p.categoria JOIN FETCH p.marca JOIN FETCH p.proveedor WHERE p.categoria.id = :categoriaId")
+    List<Producto> findByCategoriaId(@Param("categoriaId") Integer categoriaId);
+    
+    @Query("SELECT p FROM Producto p JOIN FETCH p.categoria JOIN FETCH p.marca JOIN FETCH p.proveedor WHERE p.marca.id = :marcaId")
+    List<Producto> findByMarcaId(@Param("marcaId") Integer marcaId);
 }
