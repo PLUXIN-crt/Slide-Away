@@ -52,7 +52,11 @@
                             <div class="row">
                                 <div class="col-md-6 mb-3">
                                     <label class="form-label">RUT *</label>
-                                    <input type="text" class="form-control" id="rut" name="rut" placeholder="12.345.678-9" required>
+                                    <input type="text" class="form-control" id="rut" name="rut" 
+                                           placeholder="12.345.678-9" required 
+                                           pattern="[0-9]{1,2}\.[0-9]{3}\.[0-9]{3}-[0-9kK]{1}"
+                                           title="Formato: 12.345.678-9">
+                                    <div class="form-text">Formato: 12.345.678-9</div>
                                 </div>
                                 <div class="col-md-6 mb-3">
                                     <label class="form-label">Email *</label>
@@ -253,6 +257,12 @@
                 btnPagar.disabled = false;
             }
             
+            // Validación de RUT chileno
+            function validarRUT(rut) {
+                const rutRegex = /^[0-9]{1,2}\.[0-9]{3}\.[0-9]{3}-[0-9kK]{1}$/;
+                return rutRegex.test(rut);
+            }
+            
             // Validar formulario
             function validarFormulario() {
                 const inputs = formPago.querySelectorAll('input[required], select[required]');
@@ -261,6 +271,14 @@
                 inputs.forEach(input => {
                     if (!input.value.trim()) {
                         valido = false;
+                    }
+                    
+                    // Validación especial para RUT
+                    if (input.id === 'rut' && input.value.trim() && !validarRUT(input.value.trim())) {
+                        valido = false;
+                        input.setCustomValidity('Formato de RUT inválido');
+                    } else if (input.id === 'rut') {
+                        input.setCustomValidity('');
                     }
                 });
                 

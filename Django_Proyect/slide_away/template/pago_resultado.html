@@ -1,4 +1,5 @@
 {% load static %}
+{% load math_filters %}
 <!DOCTYPE html>
 <html lang="es">
 <head>
@@ -27,8 +28,24 @@
                             <div class="col-md-6">
                                 <h6>Detalles de la Orden</h6>
                                 <p><strong>Número de Orden:</strong> {{ orden }}</p>
+                                {% if numero_documento %}
+                                <p><strong>Número de Documento:</strong> {{ numero_documento }}</p>
+                                {% endif %}
                                 <p><strong>Total Pagado:</strong> ${{ total|floatformat:0 }}</p>
                                 <p><strong>Fecha:</strong> {{ transaccion.transaction_date }}</p>
+                                {% if venta_guardada %}
+                                <div class="alert alert-success small">
+                                    <i class="fas fa-check-circle me-1"></i>Venta registrada correctamente en el sistema
+                                </div>
+                                {% else %}
+                                <div class="alert alert-warning small">
+                                    <i class="fas fa-exclamation-triangle me-1"></i>Pago exitoso, pero error al registrar venta
+                                    {% if error_detalle %}
+                                    <br><small>{{ error_detalle }}</small>
+                                    {% endif %}
+                                    <br><small>Contacte al administrador con el número de orden: {{ orden }}</small>
+                                </div>
+                                {% endif %}
                             </div>
                             <div class="col-md-6">
                                 <h6>Detalles del Pago</h6>
@@ -46,10 +63,23 @@
                         <div class="d-flex justify-content-between align-items-center border-bottom py-2">
                             <div>
                                 <strong>{{ item.nombre }}</strong><br>
-                                <small class="text-muted">Cantidad: {{ item.cantidad }} | Precio: ${{ item.precio|floatformat:0 }}</small>
+                                <small class="text-muted">
+                                    Cantidad: {{ item.cantidad }} | Precio: ${{ item.precio|floatformat:0 }}
+                                    {% if item.modalidadEntrega == 'despacho' %}
+                                    | Despacho: $5.000
+                                    {% else %}
+                                    | Retiro en tienda
+                                    {% endif %}
+                                </small>
                             </div>
                             <div>
-                                <strong>${{ item.precio|mul:item.cantidad|floatformat:0 }}</strong>
+                                {% with subtotal=item.precio|mul:item.cantidad %}
+                                {% if item.modalidadEntrega == 'despacho' %}
+                                <strong>${{ subtotal|add:5000|floatformat:0 }}</strong>
+                                {% else %}
+                                <strong>${{ subtotal|floatformat:0 }}</strong>
+                                {% endif %}
+                                {% endwith %}
                             </div>
                         </div>
                         {% endfor %}
@@ -59,8 +89,10 @@
                         {% if cliente %}
                         <hr>
                         <h6>Información de Entrega</h6>
-                        <p><strong>Cliente:</strong> {{ cliente.nombre|default:"No especificado" }}</p>
+                        <p><strong>Cliente:</strong> {{ cliente.nombre|default:"No especificado" }} {{ cliente.apellidos|default:"" }}</p>
+                        <p><strong>RUT:</strong> {{ cliente.rut|default:"No especificado" }}</p>
                         <p><strong>Email:</strong> {{ cliente.email|default:"No especificado" }}</p>
+                        <p><strong>Teléfono:</strong> {{ cliente.telefono|default:"No especificado" }}</p>
                         <p><strong>Dirección:</strong> {{ cliente.direccion|default:"Retiro en tienda" }}</p>
                         {% endif %}
                         

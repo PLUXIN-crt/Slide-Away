@@ -1,4 +1,3 @@
-
 CREATE DATABASE `rrhh`;
 create user "pluxi"@"%" identified by "123";
 grant all privileges on rrhh.* to "jefe"@"%";
@@ -266,4 +265,32 @@ VALUES
   -- Ventilación e aislamiento
   ('Ventilador extracto 150 mm', 'Silencioso, 220 V',                    17, 20,  8,  20,   9500.00),
   ('Panel aislante 1×2 m EPS',   'Espuma expandida, 20 mm',              18, 20, 16,  30,  12000.00);
+
+-- Insertar datos necesarios para el funcionamiento de la tienda
+
+-- Insertar comunas básicas
+INSERT INTO comuna (id, nombre) VALUES
+  (1, 'Santiago'),
+  (2, 'Providencia'),
+  (3, 'Las Condes'),
+  (4, 'Maipú'),
+  (5, 'Ñuñoa');
+
+-- Insertar tipos de pago
+INSERT INTO tipo_pago (id_tipo_pago, nombre, descripcion) VALUES
+  (1, 'Webpay', 'Pago con tarjeta de crédito o débito a través de Webpay'),
+  (2, 'Efectivo', 'Pago en efectivo'),
+  (3, 'Transferencia', 'Transferencia bancaria');
+
+-- Insertar cliente por defecto para ventas web
+INSERT INTO cliente (rut, nombre, apellidos, telefono, correo, id_comuna) VALUES
+  ('11111111-1', 'Cliente', 'Web', '123456789', 'cliente@web.com', 1);
+
+-- Insertar empleado para referenciar en sucursal
+INSERT INTO empleado (rut, nombre, telefono, correo, id_comuna) VALUES
+  ('22222222-2', 'Administrador', '987654321', 'admin@toolshop.com', 1);
+
+-- Insertar sucursal por defecto
+INSERT INTO sucursal (id_sucursal, nombre_sucursal, id_comuna, rut_encargado) VALUES
+  (1, 'Sucursal Principal', 1, '22222222-2');
 

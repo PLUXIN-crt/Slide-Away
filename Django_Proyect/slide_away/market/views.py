@@ -265,38 +265,169 @@ def iniciar_pago(request):
     
     return JsonResponse({'error': 'Método no permitido'}, status=405)
 
+def guardar_venta_spring_boot(carrito_items, total, datos_cliente, numero_orden):
+    """Función para guardar la venta en Spring Boot con mejor manejo de errores"""
+    try:
+        print(f"DEBUG - Iniciando guardado de venta: {numero_orden}")
+        print(f"DEBUG - Total: {total}")
+        print(f"DEBUG - Cliente: {datos_cliente}")
+        print(f"DEBUG - Items carrito: {len(carrito_items)}")
+        
+        # Validar datos básicos
+        if not numero_orden or not carrito_items or total <= 0:
+            print("ERROR - Datos de venta incompletos")
+            return False, None
+            
+        # Primero crear/verificar el cliente
+        cliente_data = {
+            "rut": datos_cliente.get('rut', '11111111-1'),
+            "nombre": datos_cliente.get('nombre', 'Cliente'),
+            "apellidos": datos_cliente.get('apellidos', 'Web'),
+            "telefono": datos_cliente.get('telefono', '123456789'),
+            "correo": datos_cliente.get('email', 'cliente@web.com'),
+            "idComuna": 1  # Comuna por defecto
+        }
+        
+        print(f"DEBUG - Datos cliente a enviar: {cliente_data}")
+        
+        # Crear cliente si no existe
+        url_cliente = "http://127.0.0.1:8089/api/clientes"
+        headers = {'Content-Type': 'application/json'}
+        
+        try:
+            response_cliente = requests.post(url_cliente, 
+                                           data=json.dumps(cliente_data), 
+                                           headers=headers, 
+                                           timeout=10)
+            print(f"DEBUG - Respuesta cliente: {response_cliente.status_code}")
+            if response_cliente.status_code not in [200, 201, 409]:  # 409 = Ya existe
+                print(f"ERROR - Error al crear cliente: {response_cliente.text}")
+        except requests.exceptions.RequestException as e:
+            print(f"ERROR - Conexión fallida con Spring Boot para cliente: {e}")
+            # Continuar con la venta aunque falle el cliente
+        
+        # Generar número de documento válido
+        try:
+            # Extraer timestamp del numero_orden
+            timestamp_str = numero_orden.split('_')[-1]
+            numero_documento = int(timestamp_str) % 999999999  # Asegurar que no sea muy largo
+        except (ValueError, IndexError):
+            numero_documento = int(datetime.now().timestamp()) % 999999999
+            
+        print(f"DEBUG - Número documento generado: {numero_documento}")
+        
+        # Crear la venta con datos validados
+        venta_data = {
+            "numeroDocumento": numero_documento,
+            "tipoDocumento": "BOLETA",
+            "fechaVenta": datetime.now().strftime('%Y-%m-%d'),
+            "totalVenta": float(total),
+            "idTipoPago": 1,  # Webpay
+            "rutCliente": datos_cliente.get('rut', '11111111-1'),
+            "nombreCliente": datos_cliente.get('nombre', 'Cliente'),
+            "apellidoCliente": datos_cliente.get('apellidos', 'Web'),
+            "idSucursal": 1  # Sucursal por defecto
+        }
+        
+        print(f"DEBUG - Datos venta a enviar: {venta_data}")
+        
+        url_venta = "http://127.0.0.1:8089/api/ventas"
+        
+        try:
+            response_venta = requests.post(url_venta, 
+                                         data=json.dumps(venta_data), 
+                                         headers=headers, 
+                                         timeout=10)
+            
+            print(f"DEBUG - Respuesta venta: {response_venta.status_code}")
+            print(f"DEBUG - Contenido respuesta: {response_venta.text}")
+            
+            if response_venta.status_code == 201:
+                print(f"SUCCESS - Venta guardada exitosamente: {numero_documento}")
+                return True, numero_documento
+            else:
+                print(f"ERROR - Error al guardar venta: {response_venta.status_code}")
+                print(f"ERROR - Detalle: {response_venta.text}")
+                return False, numero_documento  # Retornar el número aunque falle
+                
+        except requests.exceptions.Timeout:
+            print("ERROR - Timeout al conectar con Spring Boot para venta")
+            return False, numero_documento
+        except requests.exceptions.ConnectionError:
+            print("ERROR - No se pudo conectar con Spring Boot para venta")
+            return False, numero_documento
+        except requests.exceptions.RequestException as e:
+            print(f"ERROR - Error de conexión con Spring Boot: {e}")
+            return False, numero_documento
+            
+    except Exception as e:
+        print(f"ERROR GENERAL - Error al guardar venta: {e}")
+        import traceback
+        print(f"ERROR TRACEBACK: {traceback.format_exc()}")
+        return False, None
+
 def retorno_pago(request):
     """Vista que recibe el retorno después del pago - Versión Funcional"""
     if not TRANSBANK_AVAILABLE or transaction is None:
-        return render(request, 'pago_error.html', {
+        return render(request, 'pago_resultado.html', {
+            'success': False,
             'error': 'Transbank SDK no está configurado'
         })
     
     token = request.GET.get('token_ws') or request.POST.get('token_ws')
     
     if not token:
-        return render(request, 'pago_error.html', {
+        return render(request, 'pago_resultado.html', {
+            'success': False,
             'error': 'Token de pago no encontrado'
         })
     
     try:
-        # Confirmar transacción con Transbank usando tu método funcional
+        # Confirmar transacción con Transbank
         result = transaction.commit(token)
         
-        print(f"Respuesta de confirmación: {result}")
+        print(f"DEBUG - Respuesta de confirmación: {result}")
         
         # Obtener datos de la orden desde la sesión
         orden_datos = request.session.get('orden_datos', {})
         
         # Verificar que la respuesta sea exitosa
-        if result.get('status') == 'AUTHORIZED':  # Transacción autorizada
-            # Pago exitoso
+        if result.get('status') == 'AUTHORIZED':
+            # Pago exitoso - GUARDAR EN BASE DE DATOS
+            carrito_items = orden_datos.get('carrito', [])
+            total = result.get('amount', orden_datos.get('total', 0))
+            datos_cliente = orden_datos.get('cliente', {})
+            numero_orden = result.get('buy_order')
+            
+            print(f"DEBUG - Iniciando guardado de venta para orden: {numero_orden}")
+            
+            # Pre-calcular totales para cada item del carrito
+            carrito_procesado = []
+            for item in carrito_items:
+                item_procesado = item.copy()
+                subtotal = float(item.get('precio', 0)) * int(item.get('cantidad', 0))
+                despacho = 5000 if item.get('modalidadEntrega') == 'despacho' else 0
+                item_procesado['subtotal'] = subtotal
+                item_procesado['despacho'] = despacho
+                item_procesado['total_item'] = subtotal + despacho
+                carrito_procesado.append(item_procesado)
+            
+            # Guardar venta en Spring Boot con mejor manejo de errores
+            venta_guardada, numero_documento = guardar_venta_spring_boot(
+                carrito_items, total, datos_cliente, numero_orden
+            )
+            
+            print(f"DEBUG - Resultado guardado venta: {venta_guardada}, documento: {numero_documento}")
+            
             contexto = {
                 'success': True,
-                'orden': result.get('buy_order'),
-                'total': result.get('amount'),
-                'carrito': orden_datos.get('carrito', []),
-                'cliente': orden_datos.get('cliente', {}),
+                'orden': numero_orden,
+                'numero_documento': numero_documento,
+                'total': total,
+                'carrito': carrito_procesado,
+                'cliente': datos_cliente,
+                'venta_guardada': venta_guardada,
+                'error_detalle': 'Verifique que Spring Boot esté ejecutándose en puerto 8089' if not venta_guardada else None,
                 'transaccion': {
                     'authorization_code': result.get('authorization_code'),
                     'transaction_date': result.get('transaction_date'),
@@ -313,13 +444,17 @@ def retorno_pago(request):
             return render(request, 'pago_resultado.html', contexto)
         else:
             # Pago rechazado o fallido
-            return render(request, 'pago_error.html', {
+            return render(request, 'pago_resultado.html', {
+                'success': False,
                 'error': f'Pago no autorizado. Estado: {result.get("status", "UNKNOWN")}'
             })
             
     except Exception as e:
-        print(f"Error al confirmar pago: {e}")
-        return render(request, 'pago_error.html', {
+        print(f"ERROR - Error al confirmar pago: {e}")
+        import traceback
+        print(f"ERROR TRACEBACK: {traceback.format_exc()}")
+        return render(request, 'pago_resultado.html', {
+            'success': False,
             'error': f'Error al procesar el pago: {str(e)}'
         })
 
