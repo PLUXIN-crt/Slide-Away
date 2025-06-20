@@ -3,6 +3,9 @@ from django.http import HttpResponse, JsonResponse
 from django.views.decorators.csrf import csrf_exempt
 from django.views.decorators.http import require_http_methods
 from django.urls import reverse
+from rest_framework import viewsets
+from rest_framework.response import Response
+from rest_framework.decorators import api_view
 import requests
 import json
 import uuid
@@ -332,4 +335,87 @@ def pago_anulado(request):
 def confirmar_pago(request):
     """Redirect a la nueva función retorno_pago"""
     return retorno_pago(request)
+
+def admin_panel(request):
+    """Vista para renderizar el panel de administración"""
+    return render(request, 'admin_panel.html')
+
+@api_view(['GET'])
+def listar_productos_api(request):
+    """API para listar productos desde Spring Boot"""
+    try:
+        productos = obtener_productos()
+        return Response(productos)
+    except Exception as e:
+        return Response({'error': str(e)}, status=500)
+
+@api_view(['POST'])
+def crear_producto_api(request):
+    """API para crear producto en Spring Boot"""
+    try:
+        url = "http://127.0.0.1:8089/api/productos"
+        headers = {'Content-Type': 'application/json'}
+        
+        response = requests.post(url, 
+                               data=json.dumps(request.data), 
+                               headers=headers, 
+                               timeout=5)
+        
+        if response.status_code == 201:
+            return Response(response.json(), status=201)
+        else:
+            return Response({'error': 'Error al crear producto'}, status=400)
+            
+    except Exception as e:
+        return Response({'error': str(e)}, status=500)
+
+@api_view(['GET'])
+def obtener_producto_api(request, pk):
+    """API para obtener un producto específico desde Spring Boot"""
+    try:
+        url = f"http://127.0.0.1:8089/api/productos/{pk}"
+        response = requests.get(url, timeout=5)
+        
+        if response.status_code == 200:
+            return Response(response.json())
+        else:
+            return Response({'error': 'Producto no encontrado'}, status=404)
+            
+    except Exception as e:
+        return Response({'error': str(e)}, status=500)
+
+@api_view(['PUT'])
+def actualizar_producto_api(request, pk):
+    """API para actualizar producto en Spring Boot"""
+    try:
+        url = f"http://127.0.0.1:8089/api/productos/{pk}"
+        headers = {'Content-Type': 'application/json'}
+        
+        response = requests.put(url, 
+                              data=json.dumps(request.data), 
+                              headers=headers, 
+                              timeout=5)
+        
+        if response.status_code == 200:
+            return Response(response.json())
+        else:
+            return Response({'error': 'Error al actualizar producto'}, status=400)
+            
+    except Exception as e:
+        return Response({'error': str(e)}, status=500)
+
+@api_view(['DELETE'])
+def eliminar_producto_api(request, pk):
+    """API para eliminar producto en Spring Boot"""
+    try:
+        url = f"http://127.0.0.1:8089/api/productos/{pk}"
+        response = requests.delete(url, timeout=5)
+        
+        if response.status_code == 204:
+            return Response(status=204)
+        else:
+            return Response({'error': 'Error al eliminar producto'}, status=400)
+            
+    except Exception as e:
+        return Response({'error': str(e)}, status=500)
 

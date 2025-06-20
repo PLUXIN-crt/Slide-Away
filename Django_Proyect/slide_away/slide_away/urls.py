@@ -24,6 +24,16 @@ urlpatterns = [
     path('retorno/', views.retorno_pago, name='retorno_pago'),  # Esta es la URL que faltaba
     path('pago/confirmar/', views.confirmar_pago, name='confirmar_pago'),
     path('pago/anulado/', views.pago_anulado, name='pago_anulado'),
+    
+    # URLs para panel de administración
+    path('admin-panel/', views.admin_panel, name='admin_panel'),
+    
+    # APIs para panel de administración
+    path('api/productos/', views.listar_productos_api, name='api_productos_list'),
+    path('api/productos/crear/', views.crear_producto_api, name='api_productos_create'),
+    path('api/productos/<int:pk>/', views.obtener_producto_api, name='api_productos_detail'),
+    path('api/productos/<int:pk>/actualizar/', views.actualizar_producto_api, name='api_productos_update'),
+    path('api/productos/<int:pk>/eliminar/', views.eliminar_producto_api, name='api_productos_delete'),
 ]
 
 # Servir archivos media en desarrollo
