@@ -28,6 +28,7 @@ urlpatterns = [
     # URLs para panel de administración
     path('admin-panel/', views.admin_panel, name='admin_panel'),
     path('admin-boleta/', views.admin_boleta, name='admin_boleta'),
+    path('admin-cliente/', views.admin_cliente, name='admin_cliente'),
     
     # APIs para panel de administración
     path('api/productos/', views.listar_productos_api, name='api_productos_list'),
@@ -42,6 +43,14 @@ urlpatterns = [
     path('api/boletas/<int:pk>/', views.obtener_boleta_api, name='api_boletas_detail'),
     path('api/boletas/<int:pk>/actualizar/', views.actualizar_boleta_api, name='api_boletas_update'),
     path('api/boletas/<int:pk>/eliminar/', views.eliminar_boleta_api, name='api_boletas_delete'),
+    
+    # APIs para gestión de clientes
+    path('api/clientes/', views.listar_clientes_api, name='api_clientes_list'),
+    path('api/clientes/crear/', views.crear_cliente_api, name='api_clientes_create'),
+    path('api/clientes/<str:pk>/', views.obtener_cliente_api, name='api_clientes_detail'),
+    path('api/clientes/<str:pk>/actualizar/', views.actualizar_cliente_api, name='api_clientes_update'),
+    path('api/clientes/<str:pk>/eliminar/', views.eliminar_cliente_api, name='api_clientes_delete'),
+    path('api/comunas/', views.listar_comunas_api, name='api_comunas_list'),
 ]
 
 # Servir archivos media en desarrollo

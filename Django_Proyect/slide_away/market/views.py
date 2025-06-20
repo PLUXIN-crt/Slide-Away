@@ -344,6 +344,10 @@ def admin_boleta(request):
     """Vista para renderizar el panel de administración de boletas"""
     return render(request, 'admin_boleta.html')
 
+def admin_cliente(request):
+    """Vista para renderizar el panel de administración de clientes"""
+    return render(request, 'admin_cliente.html')
+
 def obtener_boletas():
     """Función para obtener ventas desde Spring Boot"""
     url = "http://127.0.0.1:8089/api/ventas"  # Cambiar endpoint
@@ -358,6 +362,38 @@ def obtener_boletas():
             return []
     except Exception as e:
         print(f"Error al obtener ventas: {e}")
+        return []
+
+def obtener_clientes():
+    """Función para obtener clientes desde Spring Boot"""
+    url = "http://127.0.0.1:8089/api/clientes"
+    try:
+        response = requests.get(url, timeout=5)
+        if response.status_code == 200:
+            data = response.json()
+            print(f"Clientes obtenidos: {len(data)}")
+            return data
+        else:
+            print(f"Error en clientes: {response.status_code}")
+            return []
+    except Exception as e:
+        print(f"Error al obtener clientes: {e}")
+        return []
+
+def obtener_comunas():
+    """Función para obtener comunas desde Spring Boot"""
+    url = "http://127.0.0.1:8089/api/comunas"
+    try:
+        response = requests.get(url, timeout=5)
+        if response.status_code == 200:
+            data = response.json()
+            print(f"Comunas obtenidas: {len(data)}")
+            return data
+        else:
+            print(f"Error en comunas: {response.status_code}")
+            return []
+    except Exception as e:
+        print(f"Error al obtener comunas: {e}")
         return []
 
 @api_view(['GET'])
@@ -514,6 +550,94 @@ def eliminar_boleta_api(request, pk):
             return Response(status=204)
         else:
             return Response({'error': 'Error al eliminar venta'}, status=400)
+            
+    except Exception as e:
+        return Response({'error': str(e)}, status=500)
+
+@api_view(['GET'])
+def listar_clientes_api(request):
+    """API para listar clientes desde Spring Boot"""
+    try:
+        clientes = obtener_clientes()
+        return Response(clientes)
+    except Exception as e:
+        return Response({'error': str(e)}, status=500)
+
+@api_view(['GET'])
+def listar_comunas_api(request):
+    """API para listar comunas desde Spring Boot"""
+    try:
+        comunas = obtener_comunas()
+        return Response(comunas)
+    except Exception as e:
+        return Response({'error': str(e)}, status=500)
+
+@api_view(['POST'])
+def crear_cliente_api(request):
+    """API para crear cliente en Spring Boot"""
+    try:
+        url = "http://127.0.0.1:8089/api/clientes"
+        headers = {'Content-Type': 'application/json'}
+        
+        response = requests.post(url, 
+                               data=json.dumps(request.data), 
+                               headers=headers, 
+                               timeout=5)
+        
+        if response.status_code == 201:
+            return Response(response.json(), status=201)
+        else:
+            return Response({'error': 'Error al crear cliente'}, status=400)
+            
+    except Exception as e:
+        return Response({'error': str(e)}, status=500)
+
+@api_view(['GET'])
+def obtener_cliente_api(request, pk):
+    """API para obtener un cliente específico desde Spring Boot"""
+    try:
+        url = f"http://127.0.0.1:8089/api/clientes/{pk}"
+        response = requests.get(url, timeout=5)
+        
+        if response.status_code == 200:
+            return Response(response.json())
+        else:
+            return Response({'error': 'Cliente no encontrado'}, status=404)
+            
+    except Exception as e:
+        return Response({'error': str(e)}, status=500)
+
+@api_view(['PUT'])
+def actualizar_cliente_api(request, pk):
+    """API para actualizar cliente en Spring Boot"""
+    try:
+        url = f"http://127.0.0.1:8089/api/clientes/{pk}"
+        headers = {'Content-Type': 'application/json'}
+        
+        response = requests.put(url, 
+                              data=json.dumps(request.data), 
+                              headers=headers, 
+                              timeout=5)
+        
+        if response.status_code == 200:
+            return Response(response.json())
+        else:
+            return Response({'error': 'Error al actualizar cliente'}, status=400)
+            
+    except Exception as e:
+        return Response({'error': str(e)}, status=500)
+
+@api_view(['DELETE'])
+def eliminar_cliente_api(request, pk):
+    """API para eliminar cliente en Spring Boot"""
+    try:
+        url = f"http://127.0.0.1:8089/api/clientes/{pk}"
+        response = requests.delete(url, timeout=5)
+        
+        if response.status_code == 204:
+            return Response(status=204)
+        else:
+            return Response({'error': 'Error al eliminar cliente'}, status=400)
             
     except Exception as e:
         return Response({'error': str(e)}, status=500)
