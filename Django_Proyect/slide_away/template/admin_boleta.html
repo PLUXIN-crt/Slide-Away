@@ -1,0 +1,359 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Panel de Administración - Ventas</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.10.0/font/bootstrap-icons.css" rel="stylesheet">
+</head>
+<body>
+    <div class="container-fluid">
+        <div class="row">
+            <!-- Sidebar -->
+            <nav class="col-md-3 col-lg-2 d-md-block bg-dark sidebar">
+                <div class="position-sticky pt-3">
+                    <h5 class="text-white px-3">Admin Panel</h5>
+                    <ul class="nav flex-column">
+                        <li class="nav-item">
+                            <a class="nav-link text-white" href="/admin-panel/">
+                                <i class="bi bi-box"></i> Productos
+                            </a>
+                        </li>
+                        <li class="nav-item">
+                            <a class="nav-link text-white active" href="#ventas">
+                                <i class="bi bi-receipt"></i> Ventas
+                            </a>
+                        </li>
+                    </ul>
+                </div>
+            </nav>
+
+            <!-- Main content -->
+            <main class="col-md-9 ms-sm-auto col-lg-10 px-md-4">
+                <div class="d-flex justify-content-between flex-wrap flex-md-nowrap align-items-center pt-3 pb-2 mb-3 border-bottom">
+                    <h1 class="h2">Gestión de Ventas</h1>
+                    <div>
+                        <a href="/admin-panel/" class="btn btn-outline-secondary me-2">
+                            <i class="bi bi-box"></i> Gestionar Productos
+                        </a>
+                        <button type="button" class="btn btn-primary" data-bs-toggle="modal" data-bs-target="#addVentaModal">
+                            <i class="bi bi-plus"></i> Agregar Venta
+                        </button>
+                    </div>
+                </div>
+
+                <!-- Ventas Table -->
+                <div class="table-responsive">
+                    <table class="table table-striped">
+                        <thead>
+                            <tr>
+                                <th>Número Documento</th>
+                                <th>Tipo Documento</th>
+                                <th>Fecha Venta</th>
+                                <th>Cliente</th>
+                                <th>Total Venta</th>
+                                <th>Tipo Pago</th>
+                                <th>Sucursal</th>
+                                <th>Acciones</th>
+                            </tr>
+                        </thead>
+                        <tbody id="ventaTableBody">
+                            <!-- Las ventas se cargarán aquí -->
+                        </tbody>
+                    </table>
+                </div>
+            </main>
+        </div>
+    </div>
+
+    <!-- Modal Agregar Venta -->
+    <div class="modal fade" id="addVentaModal" tabindex="-1">
+        <div class="modal-dialog">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title">Agregar Venta</h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+                </div>
+                <div class="modal-body">
+                    <form id="addVentaForm">
+                        <div class="mb-3">
+                            <label for="addNumeroDocumento" class="form-label">Número Documento</label>
+                            <input type="number" class="form-control" id="addNumeroDocumento" required>
+                        </div>
+                        <div class="mb-3">
+                            <label for="addTipoDocumento" class="form-label">Tipo Documento</label>
+                            <select class="form-control" id="addTipoDocumento" required>
+                                <option value="BOLETA">Boleta</option>
+                                <option value="FACTURA">Factura</option>
+                            </select>
+                        </div>
+                        <div class="mb-3">
+                            <label for="addFechaVenta" class="form-label">Fecha Venta</label>
+                            <input type="date" class="form-control" id="addFechaVenta" required>
+                        </div>
+                        <div class="mb-3">
+                            <label for="addRutCliente" class="form-label">RUT Cliente</label>
+                            <input type="text" class="form-control" id="addRutCliente" required>
+                        </div>
+                        <div class="mb-3">
+                            <label for="addNombreCliente" class="form-label">Nombre Cliente</label>
+                            <input type="text" class="form-control" id="addNombreCliente" required>
+                        </div>
+                        <div class="mb-3">
+                            <label for="addApellidoCliente" class="form-label">Apellido Cliente</label>
+                            <input type="text" class="form-control" id="addApellidoCliente" required>
+                        </div>
+                        <div class="mb-3">
+                            <label for="addTotalVenta" class="form-label">Total Venta</label>
+                            <input type="number" step="0.01" class="form-control" id="addTotalVenta" required>
+                        </div>
+                        <div class="mb-3">
+                            <label for="addIdTipoPago" class="form-label">ID Tipo Pago</label>
+                            <input type="number" class="form-control" id="addIdTipoPago" required>
+                        </div>
+                        <div class="mb-3">
+                            <label for="addIdSucursal" class="form-label">ID Sucursal</label>
+                            <input type="number" class="form-control" id="addIdSucursal" required>
+                        </div>
+                    </form>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancelar</button>
+                    <button type="button" class="btn btn-primary" onclick="addVenta()">Agregar</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Modal Editar Venta -->
+    <div class="modal fade" id="editVentaModal" tabindex="-1">
+        <div class="modal-dialog">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title">Editar Venta</h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+                </div>
+                <div class="modal-body">
+                    <form id="editVentaForm">
+                        <input type="hidden" id="editVentaId">
+                        <div class="mb-3">
+                            <label for="editNumeroDocumento" class="form-label">Número Documento</label>
+                            <input type="number" class="form-control" id="editNumeroDocumento" required>
+                        </div>
+                        <div class="mb-3">
+                            <label for="editTipoDocumento" class="form-label">Tipo Documento</label>
+                            <select class="form-control" id="editTipoDocumento" required>
+                                <option value="BOLETA">Boleta</option>
+                                <option value="FACTURA">Factura</option>
+                            </select>
+                        </div>
+                        <div class="mb-3">
+                            <label for="editFechaVenta" class="form-label">Fecha Venta</label>
+                            <input type="date" class="form-control" id="editFechaVenta" required>
+                        </div>
+                        <div class="mb-3">
+                            <label for="editRutCliente" class="form-label">RUT Cliente</label>
+                            <input type="text" class="form-control" id="editRutCliente" required>
+                        </div>
+                        <div class="mb-3">
+                            <label for="editNombreCliente" class="form-label">Nombre Cliente</label>
+                            <input type="text" class="form-control" id="editNombreCliente" required>
+                        </div>
+                        <div class="mb-3">
+                            <label for="editApellidoCliente" class="form-label">Apellido Cliente</label>
+                            <input type="text" class="form-control" id="editApellidoCliente" required>
+                        </div>
+                        <div class="mb-3">
+                            <label for="editTotalVenta" class="form-label">Total Venta</label>
+                            <input type="number" step="0.01" class="form-control" id="editTotalVenta" required>
+                        </div>
+                        <div class="mb-3">
+                            <label for="editIdTipoPago" class="form-label">ID Tipo Pago</label>
+                            <input type="number" class="form-control" id="editIdTipoPago" required>
+                        </div>
+                        <div class="mb-3">
+                            <label for="editIdSucursal" class="form-label">ID Sucursal</label>
+                            <input type="number" class="form-control" id="editIdSucursal" required>
+                        </div>
+                    </form>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancelar</button>
+                    <button type="button" class="btn btn-primary" onclick="updateVenta()">Actualizar</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+    <script>
+        // Cargar ventas al iniciar la página
+        document.addEventListener('DOMContentLoaded', function() {
+            loadVentas();
+        });
+
+        // Función para cargar ventas
+        async function loadVentas() {
+            try {
+                const response = await fetch('/api/boletas/');
+                const ventas = await response.json();
+                
+                const tableBody = document.getElementById('ventaTableBody');
+                tableBody.innerHTML = '';
+                
+                ventas.forEach(venta => {
+                    const row = `
+                        <tr>
+                            <td>${venta.numeroDocumento || venta.numero_documento}</td>
+                            <td>${venta.tipoDocumento || venta.tipo_documento}</td>
+                            <td>${venta.fechaVenta || venta.fecha_venta}</td>
+                            <td>${venta.nombreCliente || venta.nombre_cliente} ${venta.apellidoCliente || venta.apellido_cliente}</td>
+                            <td>$${venta.totalVenta || venta.total_venta}</td>
+                            <td>${venta.idTipoPago || venta.id_tipo_pago}</td>
+                            <td>${venta.idSucursal || venta.id_sucursal}</td>
+                            <td>
+                                <button class="btn btn-sm btn-outline-primary" onclick="editVenta(${venta.numeroDocumento || venta.numero_documento})">
+                                    <i class="bi bi-pencil"></i>
+                                </button>
+                                <button class="btn btn-sm btn-outline-danger" onclick="deleteVenta(${venta.numeroDocumento || venta.numero_documento})">
+                                    <i class="bi bi-trash"></i>
+                                </button>
+                            </td>
+                        </tr>
+                    `;
+                    tableBody.innerHTML += row;
+                });
+            } catch (error) {
+                console.error('Error al cargar ventas:', error);
+                alert('Error al cargar ventas');
+            }
+        }
+
+        // Función para agregar venta
+        async function addVenta() {
+            const ventaData = {
+                numeroDocumento: parseInt(document.getElementById('addNumeroDocumento').value),
+                tipoDocumento: document.getElementById('addTipoDocumento').value,
+                fechaVenta: document.getElementById('addFechaVenta').value,
+                rutCliente: document.getElementById('addRutCliente').value,
+                nombreCliente: document.getElementById('addNombreCliente').value,
+                apellidoCliente: document.getElementById('addApellidoCliente').value,
+                totalVenta: parseFloat(document.getElementById('addTotalVenta').value),
+                idTipoPago: parseInt(document.getElementById('addIdTipoPago').value),
+                idSucursal: parseInt(document.getElementById('addIdSucursal').value)
+            };
+
+            try {
+                const response = await fetch('/api/boletas/crear/', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                        'X-CSRFToken': '{{ csrf_token }}',
+                    },
+                    body: JSON.stringify(ventaData)
+                });
+
+                if (response.ok) {
+                    bootstrap.Modal.getInstance(document.getElementById('addVentaModal')).hide();
+                    document.getElementById('addVentaForm').reset();
+                    loadVentas();
+                    alert('Venta agregada exitosamente');
+                } else {
+                    alert('Error al agregar venta');
+                }
+            } catch (error) {
+                console.error('Error:', error);
+                alert('Error al agregar venta');
+            }
+        }
+
+        // Función para editar venta
+        async function editVenta(numeroDocumento) {
+            try {
+                const response = await fetch(`/api/boletas/${numeroDocumento}/`);
+                const venta = await response.json();
+                
+                document.getElementById('editVentaId').value = venta.numeroDocumento || venta.numero_documento;
+                document.getElementById('editNumeroDocumento').value = venta.numeroDocumento || venta.numero_documento;
+                document.getElementById('editTipoDocumento').value = venta.tipoDocumento || venta.tipo_documento;
+                document.getElementById('editFechaVenta').value = venta.fechaVenta || venta.fecha_venta;
+                document.getElementById('editRutCliente').value = venta.rutCliente || venta.rut_cliente;
+                document.getElementById('editNombreCliente').value = venta.nombreCliente || venta.nombre_cliente;
+                document.getElementById('editApellidoCliente').value = venta.apellidoCliente || venta.apellido_cliente;
+                document.getElementById('editTotalVenta').value = venta.totalVenta || venta.total_venta;
+                document.getElementById('editIdTipoPago').value = venta.idTipoPago || venta.id_tipo_pago;
+                document.getElementById('editIdSucursal').value = venta.idSucursal || venta.id_sucursal;
+                
+                const modal = new bootstrap.Modal(document.getElementById('editVentaModal'));
+                modal.show();
+            } catch (error) {
+                console.error('Error:', error);
+                alert('Error al cargar venta');
+            }
+        }
+
+        // Función para actualizar venta
+        async function updateVenta() {
+            const numeroDocumento = document.getElementById('editVentaId').value;
+            const ventaData = {
+                numeroDocumento: parseInt(document.getElementById('editNumeroDocumento').value),
+                tipoDocumento: document.getElementById('editTipoDocumento').value,
+                fechaVenta: document.getElementById('editFechaVenta').value,
+                rutCliente: document.getElementById('editRutCliente').value,
+                nombreCliente: document.getElementById('editNombreCliente').value,
+                apellidoCliente: document.getElementById('editApellidoCliente').value,
+                totalVenta: parseFloat(document.getElementById('editTotalVenta').value),
+                idTipoPago: parseInt(document.getElementById('editIdTipoPago').value),
+                idSucursal: parseInt(document.getElementById('editIdSucursal').value)
+            };
+
+            try {
+                const response = await fetch(`/api/boletas/${numeroDocumento}/actualizar/`, {
+                    method: 'PUT',
+                    headers: {
+                        'Content-Type': 'application/json',
+                        'X-CSRFToken': '{{ csrf_token }}',
+                    },
+                    body: JSON.stringify(ventaData)
+                });
+
+                if (response.ok) {
+                    bootstrap.Modal.getInstance(document.getElementById('editVentaModal')).hide();
+                    loadVentas();
+                    alert('Venta actualizada exitosamente');
+                } else {
+                    alert('Error al actualizar venta');
+                }
+            } catch (error) {
+                console.error('Error:', error);
+                alert('Error al actualizar venta');
+            }
+        }
+
+        // Función para eliminar venta
+        async function deleteVenta(numeroDocumento) {
+            if (confirm('¿Estás seguro de que quieres eliminar esta venta?')) {
+                try {
+                    const response = await fetch(`/api/boletas/${numeroDocumento}/eliminar/`, {
+                        method: 'DELETE',
+                        headers: {
+                            'X-CSRFToken': '{{ csrf_token }}',
+                        }
+                    });
+
+                    if (response.ok) {
+                        loadVentas();
+                        alert('Venta eliminada exitosamente');
+                    } else {
+                        alert('Error al eliminar venta');
+                    }
+                } catch (error) {
+                    console.error('Error:', error);
+                    alert('Error al eliminar venta');
+                }
+            }
+        }
+    </script>
+</body>
+</html>

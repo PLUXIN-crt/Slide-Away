@@ -20,6 +20,11 @@
                                 <i class="bi bi-box"></i> Productos
                             </a>
                         </li>
+                        <li class="nav-item">
+                            <a class="nav-link text-white" href="/admin-boleta/">
+                                <i class="bi bi-receipt"></i> Boletas
+                            </a>
+                        </li>
                     </ul>
                 </div>
             </nav>
@@ -28,9 +33,14 @@
             <main class="col-md-9 ms-sm-auto col-lg-10 px-md-4">
                 <div class="d-flex justify-content-between flex-wrap flex-md-nowrap align-items-center pt-3 pb-2 mb-3 border-bottom">
                     <h1 class="h2">Gestión de Productos</h1>
-                    <button type="button" class="btn btn-primary" data-bs-toggle="modal" data-bs-target="#addProductModal">
-                        <i class="bi bi-plus"></i> Agregar Producto
-                    </button>
+                    <div>
+                        <a href="/admin-boleta/" class="btn btn-outline-secondary me-2">
+                            <i class="bi bi-receipt"></i> Gestionar Boletas
+                        </a>
+                        <button type="button" class="btn btn-primary" data-bs-toggle="modal" data-bs-target="#addProductModal">
+                            <i class="bi bi-plus"></i> Agregar Producto
+                        </button>
+                    </div>
                 </div>
 
                 <!-- Productos Table -->

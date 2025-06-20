@@ -27,6 +27,7 @@ urlpatterns = [
     
     # URLs para panel de administración
     path('admin-panel/', views.admin_panel, name='admin_panel'),
+    path('admin-boleta/', views.admin_boleta, name='admin_boleta'),
     
     # APIs para panel de administración
     path('api/productos/', views.listar_productos_api, name='api_productos_list'),
@@ -34,6 +35,13 @@ urlpatterns = [
     path('api/productos/<int:pk>/', views.obtener_producto_api, name='api_productos_detail'),
     path('api/productos/<int:pk>/actualizar/', views.actualizar_producto_api, name='api_productos_update'),
     path('api/productos/<int:pk>/eliminar/', views.eliminar_producto_api, name='api_productos_delete'),
+    
+    # APIs para gestión de boletas (ventas)
+    path('api/boletas/', views.listar_boletas_api, name='api_boletas_list'),
+    path('api/boletas/crear/', views.crear_boleta_api, name='api_boletas_create'),
+    path('api/boletas/<int:pk>/', views.obtener_boleta_api, name='api_boletas_detail'),
+    path('api/boletas/<int:pk>/actualizar/', views.actualizar_boleta_api, name='api_boletas_update'),
+    path('api/boletas/<int:pk>/eliminar/', views.eliminar_boleta_api, name='api_boletas_delete'),
 ]
 
 # Servir archivos media en desarrollo

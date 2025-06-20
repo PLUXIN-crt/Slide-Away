@@ -340,6 +340,26 @@ def admin_panel(request):
     """Vista para renderizar el panel de administración"""
     return render(request, 'admin_panel.html')
 
+def admin_boleta(request):
+    """Vista para renderizar el panel de administración de boletas"""
+    return render(request, 'admin_boleta.html')
+
+def obtener_boletas():
+    """Función para obtener ventas desde Spring Boot"""
+    url = "http://127.0.0.1:8089/api/ventas"  # Cambiar endpoint
+    try:
+        response = requests.get(url, timeout=5)
+        if response.status_code == 200:
+            data = response.json()
+            print(f"Ventas obtenidas: {len(data)}")
+            return data
+        else:
+            print(f"Error en ventas: {response.status_code}")
+            return []
+    except Exception as e:
+        print(f"Error al obtener ventas: {e}")
+        return []
+
 @api_view(['GET'])
 def listar_productos_api(request):
     """API para listar productos desde Spring Boot"""
@@ -415,6 +435,85 @@ def eliminar_producto_api(request, pk):
             return Response(status=204)
         else:
             return Response({'error': 'Error al eliminar producto'}, status=400)
+            
+    except Exception as e:
+        return Response({'error': str(e)}, status=500)
+
+@api_view(['GET'])
+def listar_boletas_api(request):
+    """API para listar ventas desde Spring Boot"""
+    try:
+        boletas = obtener_boletas()
+        return Response(boletas)
+    except Exception as e:
+        return Response({'error': str(e)}, status=500)
+
+@api_view(['POST'])
+def crear_boleta_api(request):
+    """API para crear venta en Spring Boot"""
+    try:
+        url = "http://127.0.0.1:8089/api/ventas"  # Cambiar endpoint
+        headers = {'Content-Type': 'application/json'}
+        
+        response = requests.post(url, 
+                               data=json.dumps(request.data), 
+                               headers=headers, 
+                               timeout=5)
+        
+        if response.status_code == 201:
+            return Response(response.json(), status=201)
+        else:
+            return Response({'error': 'Error al crear venta'}, status=400)
+            
+    except Exception as e:
+        return Response({'error': str(e)}, status=500)
+
+@api_view(['GET'])
+def obtener_boleta_api(request, pk):
+    """API para obtener una venta específica desde Spring Boot"""
+    try:
+        url = f"http://127.0.0.1:8089/api/ventas/{pk}"  # Cambiar endpoint
+        response = requests.get(url, timeout=5)
+        
+        if response.status_code == 200:
+            return Response(response.json())
+        else:
+            return Response({'error': 'Venta no encontrada'}, status=404)
+            
+    except Exception as e:
+        return Response({'error': str(e)}, status=500)
+
+@api_view(['PUT'])
+def actualizar_boleta_api(request, pk):
+    """API para actualizar venta en Spring Boot"""
+    try:
+        url = f"http://127.0.0.1:8089/api/ventas/{pk}"  # Cambiar endpoint
+        headers = {'Content-Type': 'application/json'}
+        
+        response = requests.put(url, 
+                              data=json.dumps(request.data), 
+                              headers=headers, 
+                              timeout=5)
+        
+        if response.status_code == 200:
+            return Response(response.json())
+        else:
+            return Response({'error': 'Error al actualizar venta'}, status=400)
+            
+    except Exception as e:
+        return Response({'error': str(e)}, status=500)
+
+@api_view(['DELETE'])
+def eliminar_boleta_api(request, pk):
+    """API para eliminar venta en Spring Boot"""
+    try:
+        url = f"http://127.0.0.1:8089/api/ventas/{pk}"  # Cambiar endpoint
+        response = requests.delete(url, timeout=5)
+        
+        if response.status_code == 204:
+            return Response(status=204)
+        else:
+            return Response({'error': 'Error al eliminar venta'}, status=400)
             
     except Exception as e:
         return Response({'error': str(e)}, status=500)
