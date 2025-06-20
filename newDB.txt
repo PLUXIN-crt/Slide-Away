@@ -1,7 +1,12 @@
 CREATE DATABASE `rrhh`;
 create user "pluxi"@"%" identified by "123";
+grant all privileges on rrhh.* to "pluxi"@"%";
+flush privileges;
+
+create user "jefe"@"%" identified by "123";
 grant all privileges on rrhh.* to "jefe"@"%";
 flush privileges;
+
 USE rrhh;
 -- 2) Definir tablas
 
