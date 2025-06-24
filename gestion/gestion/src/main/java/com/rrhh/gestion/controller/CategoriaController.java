@@ -3,6 +3,7 @@ package com.rrhh.gestion.controller;
 import com.rrhh.gestion.entity.Categoria;
 import com.rrhh.gestion.repository.CategoriaRepository;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
@@ -33,4 +34,15 @@ public class CategoriaController {
         }
         return ResponseEntity.notFound().build();
     }
+
+    @PostMapping
+public ResponseEntity<Categoria> createCategoria(@RequestBody Categoria categoria) {
+    try {
+        Categoria categoriaGuardada = categoriaRepository.save(categoria);
+        return ResponseEntity.status(HttpStatus.CREATED).body(categoriaGuardada);
+    } catch (Exception e) {
+        return ResponseEntity.badRequest().build();
+    }
+}
+
 }

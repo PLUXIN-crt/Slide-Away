@@ -36,6 +36,8 @@ urlpatterns = [
     path('api/productos/<int:pk>/', views.obtener_producto_api, name='api_productos_detail'),
     path('api/productos/<int:pk>/actualizar/', views.actualizar_producto_api, name='api_productos_update'),
     path('api/productos/<int:pk>/eliminar/', views.eliminar_producto_api, name='api_productos_delete'),
+    # En tu archivo urls.py
+    path('api/categorias/crear/', views.crear_categoria_api, name='crear_categoria_api'),
     
     # APIs para gestión de boletas (ventas)
     path('api/boletas/', views.listar_boletas_api, name='api_boletas_list'),
@@ -53,7 +55,7 @@ urlpatterns = [
     path('api/comunas/', views.listar_comunas_api, name='api_comunas_list'),
 ]
 
-# Servir archivos media en desarrollo
+
 if settings.DEBUG:
     urlpatterns += static(settings.MEDIA_URL, document_root=settings.MEDIA_ROOT)
     urlpatterns += static(settings.STATIC_URL, document_root=settings.STATIC_ROOT)

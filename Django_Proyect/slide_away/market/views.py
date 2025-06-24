@@ -777,3 +777,22 @@ def eliminar_cliente_api(request, pk):
     except Exception as e:
         return Response({'error': str(e)}, status=500)
 
+@api_view(['POST'])
+def crear_categoria_api(request):
+    """API para crear categoría en Spring Boot"""
+    try:
+        url = "http://127.0.0.1:8089/api/categorias"
+        headers = {'Content-Type': 'application/json'}
+        
+        response = requests.post(url, 
+                               data=json.dumps(request.data), 
+                               headers=headers, 
+                               timeout=5)
+        
+        if response.status_code == 201:
+            return Response(response.json(), status=201)
+        else:
+            return Response({'error': 'Error al crear categoría'}, status=400)
+            
+    except Exception as e:
+        return Response({'error': str(e)}, status=500)
