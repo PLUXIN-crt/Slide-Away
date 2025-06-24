@@ -36,8 +36,7 @@ urlpatterns = [
     path('api/productos/<int:pk>/', views.obtener_producto_api, name='api_productos_detail'),
     path('api/productos/<int:pk>/actualizar/', views.actualizar_producto_api, name='api_productos_update'),
     path('api/productos/<int:pk>/eliminar/', views.eliminar_producto_api, name='api_productos_delete'),
-    # En tu archivo urls.py
-    path('api/categorias/crear/', views.crear_categoria_api, name='crear_categoria_api'),
+
     
     # APIs para gestión de boletas (ventas)
     path('api/boletas/', views.listar_boletas_api, name='api_boletas_list'),

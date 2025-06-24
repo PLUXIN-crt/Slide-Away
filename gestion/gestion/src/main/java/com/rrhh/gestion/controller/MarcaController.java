@@ -3,6 +3,7 @@ package com.rrhh.gestion.controller;
 import com.rrhh.gestion.entity.Marca;
 import com.rrhh.gestion.repository.MarcaRepository;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
@@ -32,5 +33,16 @@ public class MarcaController {
             return ResponseEntity.ok(marca.get());
         }
         return ResponseEntity.notFound().build();
+    }
+
+    // Crear nueva marca
+    @PostMapping
+    public ResponseEntity<Marca> createMarca(@RequestBody Marca marca) {
+        try {
+            Marca marcaGuardada = marcaRepository.save(marca);
+            return ResponseEntity.status(HttpStatus.CREATED).body(marcaGuardada);
+        } catch (Exception e) {
+            return ResponseEntity.badRequest().build();
+        }
     }
 }
